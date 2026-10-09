@@ -1,14 +1,15 @@
 import React from 'react';
 import { UploadCloud, ArrowRight, ArrowLeft, Download, MousePointer } from 'lucide-react';
+import { getSiteConfig } from '../services/siteConfigService';
 
 export const HowItWorks: React.FC = () => {
   return (
     <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Section Header */}
       <div className="max-w-3xl mb-12">
-        <h2 className="text-3xl sm:text-4xl lg:text-4xl font-bold tracking-tight text-gray-950 mb-3 font-['Plus_Jakarta_Sans']">
-          How to merge PDF files online
-        </h2>
+        <h3 className="text-3xl sm:text-4xl lg:text-4xl font-bold tracking-tight text-gray-950 mb-3 font-['Plus_Jakarta_Sans']">
+          {getSiteConfig().seo.h3 || 'How to Merge PDF Files Online'}
+        </h3>
         <p className="text-base sm:text-lg text-gray-600 font-normal">
           Follow these simple steps to combine your PDF documents into a single file:
         </p>
@@ -22,9 +23,9 @@ export const HowItWorks: React.FC = () => {
             <div className="w-9 h-9 rounded-full bg-[#1c1917] text-white flex items-center justify-center font-bold text-sm mb-5 shadow-xs">
               1
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
+            <h4 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
               Upload
-            </h3>
+            </h4>
             <p className="text-sm text-gray-600 leading-relaxed mb-6">
               Select the PDF files to upload from the computer.
             </p>
@@ -51,9 +52,9 @@ export const HowItWorks: React.FC = () => {
             <div className="w-9 h-9 rounded-full bg-[#1c1917] text-white flex items-center justify-center font-bold text-sm mb-5 shadow-xs">
               2
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
+            <h4 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
               Arrange files
-            </h3>
+            </h4>
             <p className="text-sm text-gray-600 leading-relaxed mb-6">
               Drag and drop the files to arrange them in the desired order directly in the dropdown.
             </p>
@@ -98,9 +99,9 @@ export const HowItWorks: React.FC = () => {
             <div className="w-9 h-9 rounded-full bg-[#1c1917] text-white flex items-center justify-center font-bold text-sm mb-5 shadow-xs">
               3
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
+            <h4 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
               Merge PDFs
-            </h3>
+            </h4>
             <p className="text-sm text-gray-600 leading-relaxed mb-6">
               Select Merge All to combine the files into a single PDF.
             </p>
@@ -127,9 +128,9 @@ export const HowItWorks: React.FC = () => {
             <div className="w-9 h-9 rounded-full bg-[#1c1917] text-white flex items-center justify-center font-bold text-sm mb-5 shadow-xs">
               4
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
+            <h4 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
               Edit and download
-            </h3>
+            </h4>
             <p className="text-sm text-gray-600 leading-relaxed mb-6">
               After merging, the app will open the web browser. Sign in to PDF to continue editing the merged PDF or download it.
             </p>

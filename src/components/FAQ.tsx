@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import { FAQItem } from '../types';
+import { getSiteConfig } from '../services/siteConfigService';
 
 const FAQ_DATA: FAQItem[] = [
   {
@@ -46,8 +47,19 @@ const FAQ_DATA: FAQItem[] = [
 ];
 
 export const FAQ: React.FC = () => {
-  // First item open by default matching screenshot 1
+  // First item open by default matching screenshot
   const [openIndices, setOpenIndices] = useState<number[]>([0]);
+  const [siteConfig, setSiteConfig] = useState(() => getSiteConfig());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setSiteConfig(getSiteConfig());
+    };
+    window.addEventListener('siteConfigUpdated', handleUpdate);
+    return () => window.removeEventListener('siteConfigUpdated', handleUpdate);
+  }, []);
+
+  const supportEmail = siteConfig?.supportEmail || 'voskvisa@gmail.com';
 
   const toggleItem = (index: number) => {
     setOpenIndices((prev) =>
@@ -57,10 +69,21 @@ export const FAQ: React.FC = () => {
 
   return (
     <section id="faq" className="py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      {/* Section Header matching Screenshot 1 */}
-      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950 text-center mb-16 font-['Plus_Jakarta_Sans']">
-        Frequently asked questions
-      </h2>
+      {/* Section Header matching Screenshot */}
+      <div className="text-center mb-14 sm:mb-16">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950 font-['Plus_Jakarta_Sans']">
+          Frequently asked questions
+        </h2>
+        <p className="mt-4 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          Quick answers to questions you may have. Can&apos;t find what you&apos;re looking for? Check our answers below or email us directly at{' '}
+          <a
+            href={`mailto:${supportEmail}`}
+            className="text-gray-950 font-semibold underline underline-offset-4 hover:text-black transition-colors"
+          >
+            {supportEmail}
+          </a>
+        </p>
+      </div>
 
       {/* Accordion List */}
       <div className="divide-y divide-gray-200">
@@ -71,10 +94,10 @@ export const FAQ: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleItem(index)}
-                className="w-full flex items-center justify-between text-left focus:outline-hidden group"
+                className="w-full flex items-center justify-between text-left focus:outline-hidden group cursor-pointer"
                 aria-expanded={isOpen}
               >
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-black transition-colors pr-6">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-black transition-colors pr-6 font-['Plus_Jakarta_Sans']">
                   {item.question}
                 </h3>
                 <div className="shrink-0 text-gray-800 ml-2">

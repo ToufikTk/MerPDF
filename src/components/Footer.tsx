@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ShieldCheck, FileText, Cookie, Mail, CheckCircle } from 'lucide-react';
+import { getSiteConfig, SiteConfig } from '../services/siteConfigService';
 
 interface FooterProps {
   onNavigateAbout?: () => void;
+  onNavigateContact?: () => void;
   onNavigatePrivacy?: () => void;
   onNavigateTerms?: () => void;
   onNavigateCookies?: () => void;
+  onNavigateOwner?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onNavigateAbout,
+  onNavigateContact,
   onNavigatePrivacy,
   onNavigateTerms,
   onNavigateCookies,
+  onNavigateOwner,
 }) => {
   const [modalType, setModalType] = useState<
     'contact' | 'privacy' | 'terms' | 'cookies' | null
@@ -20,6 +25,15 @@ export const Footer: React.FC<FooterProps> = ({
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [contactEmail, setContactEmail] = useState('');
   const [contactMessage, setContactMessage] = useState('');
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => getSiteConfig());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setSiteConfig(getSiteConfig());
+    };
+    window.addEventListener('siteConfigUpdated', handleUpdate);
+    return () => window.removeEventListener('siteConfigUpdated', handleUpdate);
+  }, []);
 
   const handleOpenAbout = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,27 +56,98 @@ export const Footer: React.FC<FooterProps> = ({
 
   return (
     <>
-      <footer className="bg-white border-t border-gray-100 mt-16">
+      <footer className="bg-white mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Left: Copyright */}
-            <p className="text-xs sm:text-sm text-gray-500 text-center sm:text-left">
-              © 2014–2026 All rights reserved
-            </p>
+            <div className="flex items-center text-center sm:text-left">
+              <p className="text-xs sm:text-sm text-gray-500">
+                © 2026 All rights reserved
+              </p>
+            </div>
+
+            {/* Center / Right: Social Media Icons (with links) */}
+            <div className="flex items-center space-x-3.5">
+              {siteConfig.socialVisibility.twitter && siteConfig.socialLinks.twitter && (
+                <a
+                  href={siteConfig.socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-all text-xs font-bold"
+                  title="Twitter / X"
+                >
+                  𝕏
+                </a>
+              )}
+              {siteConfig.socialVisibility.github && siteConfig.socialLinks.github && (
+                <a
+                  href={siteConfig.socialLinks.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-all text-xs"
+                  title="GitHub"
+                >
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                  </svg>
+                </a>
+              )}
+              {siteConfig.socialVisibility.linkedin && siteConfig.socialLinks.linkedin && (
+                <a
+                  href={siteConfig.socialLinks.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-all text-xs font-bold"
+                  title="LinkedIn"
+                >
+                  in
+                </a>
+              )}
+              {siteConfig.socialVisibility.facebook && siteConfig.socialLinks.facebook && (
+                <a
+                  href={siteConfig.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-all text-xs font-bold"
+                  title="Facebook"
+                >
+                  f
+                </a>
+              )}
+              {siteConfig.socialVisibility.youtube && siteConfig.socialLinks.youtube && (
+                <a
+                  href={siteConfig.socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-all text-xs"
+                  title="YouTube"
+                >
+                  ▶
+                </a>
+              )}
+            </div>
 
             {/* Right: Footer Navigation Links */}
-            <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-gray-500 font-medium">
+            <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs sm:text-sm text-gray-500 font-medium">
               <button
                 type="button"
                 onClick={handleOpenAbout}
-                className="hover:text-gray-900 transition-colors"
+                className="hover:text-gray-900 transition-colors cursor-pointer"
               >
                 About
               </button>
               <button
                 type="button"
-                onClick={() => setModalType('contact')}
-                className="hover:text-gray-900 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigateContact) {
+                    onNavigateContact();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    setModalType('contact');
+                  }
+                }}
+                className="hover:text-gray-900 transition-colors cursor-pointer"
               >
                 Contact
               </button>
@@ -77,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({
                     setModalType('privacy');
                   }
                 }}
-                className="hover:text-gray-900 transition-colors"
+                className="hover:text-gray-900 transition-colors cursor-pointer"
               >
                 Privacy Policy
               </button>
@@ -92,7 +177,7 @@ export const Footer: React.FC<FooterProps> = ({
                     setModalType('terms');
                   }
                 }}
-                className="hover:text-gray-900 transition-colors"
+                className="hover:text-gray-900 transition-colors cursor-pointer"
               >
                 Terms of Service
               </button>
@@ -107,7 +192,7 @@ export const Footer: React.FC<FooterProps> = ({
                     setModalType('cookies');
                   }
                 }}
-                className="hover:text-gray-900 transition-colors"
+                className="hover:text-gray-900 transition-colors cursor-pointer"
               >
                 Cookies Policy
               </button>
@@ -146,54 +231,39 @@ export const Footer: React.FC<FooterProps> = ({
             {/* Modal Body */}
             <div className="p-6 sm:p-8 overflow-y-auto space-y-4 text-sm text-gray-600 leading-relaxed">
               {modalType === 'privacy' && (
-                <>
-                  <p className="font-semibold text-gray-900">1. Client-Side Processing Guarantee</p>
-                  <p>
-                    MergePDF operates entirely within your browser using WebAssembly and HTML5 streaming technologies. Your files, documents, and images are merged in local memory and are never uploaded to, transmitted across, or stored on external servers.
-                  </p>
-                  <p className="font-semibold text-gray-900 mt-4">2. Zero Telemetry &amp; Data Collection</p>
-                  <p>
-                    We do not track, catalog, or inspect document metadata, filenames, text content, or embedded media. Once you close your browser tab, all temporary memory allocations are instantly cleared.
-                  </p>
-                  <p className="font-semibold text-gray-900 mt-4">3. Compliance</p>
-                  <p>
-                    Our architecture complies with GDPR, CCPA, and strict HIPAA security requirements because no protected health information (PHI) or personal data ever leaves the user&apos;s device.
-                  </p>
-                </>
+                <div className="space-y-4">
+                  <p className="text-gray-700 italic">{siteConfig.legalPages.privacyPolicy.introduction}</p>
+                  {siteConfig.legalPages.privacyPolicy.sections.map((sec) => (
+                    <div key={sec.id} className="space-y-1">
+                      <p className="font-semibold text-gray-900">{sec.title}</p>
+                      <p className="text-gray-600 leading-relaxed">{sec.content}</p>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {modalType === 'terms' && (
-                <>
-                  <p className="font-semibold text-gray-900">1. Terms of Use</p>
-                  <p>
-                    By accessing and using MergePDF, you agree to comply with all applicable local, national, and international laws. MergePDF is provided free of charge for personal, educational, and commercial purposes.
-                  </p>
-                  <p className="font-semibold text-gray-900 mt-4">2. Intellectual Property</p>
-                  <p>
-                    All rights, title, and ownership in and to your original documents remain solely with you. MergePDF claims no ownership or license over any files you process using our software.
-                  </p>
-                  <p className="font-semibold text-gray-900 mt-4">3. Disclaimer of Warranty</p>
-                  <p>
-                    The service is provided on an &quot;as-is&quot; and &quot;as-available&quot; basis without warranties of any kind. While our software rigorously maintains ISO 32000 PDF standards, we advise users to retain backup copies of original files.
-                  </p>
-                </>
+                <div className="space-y-4">
+                  <p className="text-gray-700 italic">{siteConfig.legalPages.termsOfService.introduction}</p>
+                  {siteConfig.legalPages.termsOfService.sections.map((sec) => (
+                    <div key={sec.id} className="space-y-1">
+                      <p className="font-semibold text-gray-900">{sec.title}</p>
+                      <p className="text-gray-600 leading-relaxed">{sec.content}</p>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {modalType === 'cookies' && (
-                <>
-                  <p className="font-semibold text-gray-900">1. Cookie Usage</p>
-                  <p>
-                    MergePDF does not use third-party tracking cookies, advertising identifiers, or persistent user fingerprinting technologies.
-                  </p>
-                  <p className="font-semibold text-gray-900 mt-4">2. Local Storage</p>
-                  <p>
-                    We may utilize minimal browser LocalStorage or SessionStorage solely for essential interface preferences (such as remembering theme or view settings). These cookies contain zero personally identifiable information.
-                  </p>
-                  <p className="font-semibold text-gray-900 mt-4">3. Managing Cookies</p>
-                  <p>
-                    You may clear or block cookies in your browser settings at any time without impacting your ability to merge PDF documents.
-                  </p>
-                </>
+                <div className="space-y-4">
+                  <p className="text-gray-700 italic">{siteConfig.legalPages.cookiesPolicy.introduction}</p>
+                  {siteConfig.legalPages.cookiesPolicy.sections.map((sec) => (
+                    <div key={sec.id} className="space-y-1">
+                      <p className="font-semibold text-gray-900">{sec.title}</p>
+                      <p className="text-gray-600 leading-relaxed">{sec.content}</p>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {modalType === 'contact' && (

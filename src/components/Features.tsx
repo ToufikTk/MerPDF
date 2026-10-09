@@ -1,4 +1,5 @@
 import React from 'react';
+import { getSiteConfig } from '../services/siteConfigService';
 
 export const Features: React.FC = () => {
   return (
@@ -6,10 +7,10 @@ export const Features: React.FC = () => {
       {/* Section Header */}
       <div className="max-w-3xl mb-16">
         <h2 className="text-3xl sm:text-4xl lg:text-4xl font-bold tracking-tight text-gray-950 mb-3 font-['Plus_Jakarta_Sans']">
-          Merging PDFs made simple
+          {getSiteConfig().seo.h2 || 'Combine Multiple PDF Files into One Document'}
         </h2>
         <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-          Merge PDFs effortlessly with PDF&apos;s free tool. Combine multiple files into one organized document in just a few clicks.
+          Merge PDFs effortlessly with our free tool. Combine multiple files into one organized document in just a few clicks.
         </p>
       </div>
 

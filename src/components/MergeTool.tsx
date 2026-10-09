@@ -29,6 +29,7 @@ import {
   mergePdfFiles,
   createSamplePdf
 } from '../utils/pdfMerger';
+import { getSiteConfig } from '../services/siteConfigService';
 
 interface MergeToolProps {
   onPreviewPdf: (url: string, name: string) => void;
@@ -234,10 +235,11 @@ export const MergeTool: React.FC<MergeToolProps> = ({ onPreviewPdf }) => {
       {/* Main Title & Subtitle */}
       <div className="text-center max-w-3xl mx-auto mb-10">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
-          Merge PDF files
+          {getSiteConfig().seo.h1 || 'Merge PDF Files Online for Free'}
         </h1>
         <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-          Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.
+          <strong className="text-gray-950 font-semibold">{getSiteConfig().tagline || 'Merge. Combine. Simplify.'}</strong>{' '}
+          {getSiteConfig().seo.metaDescription || 'Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.'}
         </p>
       </div>
 

@@ -3,7 +3,7 @@ import { ShieldCheck, Cpu, Database, CheckCheck, Smartphone, Lock } from 'lucide
 
 export const TechnicalSpecs: React.FC = () => {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-gray-100">
+    <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="bg-[#fcfbf9] border border-[#f3eee7] rounded-3xl p-8 sm:p-12">
         <div className="max-w-3xl mb-10">
           <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
