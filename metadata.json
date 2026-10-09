@@ -1,0 +1,6 @@
+{
+  "name": "PDF – Merge PDF Files Online",
+  "description": "Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
