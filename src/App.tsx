@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { MergeTool } from './components/MergeTool';
 import { HowItWorks } from './components/HowItWorks';
@@ -8,8 +8,16 @@ import { TechnicalSpecs } from './components/TechnicalSpecs';
 import { FAQ } from './components/FAQ';
 import { Footer } from './components/Footer';
 import { PreviewModal } from './components/PreviewModal';
+import { AboutPage } from './components/AboutPage';
+import { HowItWorksPage } from './components/HowItWorksPage';
 
 export default function App() {
+  const [activePage, setActivePage] = useState<'home' | 'how-it-works' | 'about'>(() => {
+    if (window.location.hash === '#about') return 'about';
+    if (window.location.hash === '#how-it-works') return 'how-it-works';
+    return 'home';
+  });
+
   const [previewState, setPreviewState] = useState<{
     isOpen: boolean;
     url: string | null;
@@ -19,6 +27,34 @@ export default function App() {
     url: null,
     name: '',
   });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#about') {
+        setActivePage('about');
+      } else if (window.location.hash === '#how-it-works') {
+        setActivePage('how-it-works');
+      } else if (window.location.hash === '' || window.location.hash === '#merge-tool') {
+        setActivePage('home');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleNavigate = (page: 'home' | 'how-it-works' | 'about') => {
+    setActivePage(page);
+    if (page === 'about') {
+      window.location.hash = '#about';
+    } else if (page === 'how-it-works') {
+      window.location.hash = '#how-it-works';
+    } else {
+      if (window.location.hash === '#about' || window.location.hash === '#how-it-works') {
+        window.history.pushState(null, '', window.location.pathname);
+      }
+    }
+  };
 
   const handleOpenPreview = (url: string, name: string) => {
     setPreviewState({
@@ -37,40 +73,62 @@ export default function App() {
   };
 
   const scrollToMerge = () => {
-    const el = document.getElementById('merge-tool');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    if (activePage !== 'home') {
+      handleNavigate('home');
+      setTimeout(() => {
+        const el = document.getElementById('merge-tool');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.getElementById('merge-tool');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
     <div className="min-h-screen bg-white text-[#111827] flex flex-col selection:bg-gray-900 selection:text-white">
       {/* Navigation */}
-      <Navbar onOpenUpload={scrollToMerge} />
+      <Navbar
+        activePage={activePage}
+        onNavigate={handleNavigate}
+        onOpenUpload={scrollToMerge}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1">
-        {/* 1. Hero Merge Tool (H1) */}
-        <MergeTool onPreviewPdf={handleOpenPreview} />
+        {activePage === 'about' && (
+          <AboutPage onGoToMerge={() => handleNavigate('home')} />
+        )}
 
-        {/* 2. How to merge PDF files online (H2 -> H3) */}
-        <HowItWorks />
+        {activePage === 'how-it-works' && (
+          <HowItWorksPage onGoToMerge={() => handleNavigate('home')} />
+        )}
 
-        {/* 3. Merging PDFs made simple (H2 -> H3) */}
-        <Features />
+        {activePage === 'home' && (
+          <>
+            {/* 1. Hero Merge Tool (H1) */}
+            <MergeTool onPreviewPdf={handleOpenPreview} />
 
-        {/* 4. Discover PDF's products (H2 -> H3) */}
-        <Products />
+            {/* 2. How to merge PDF files online (H2 -> H3) */}
+            <HowItWorks />
 
-        {/* 5. Enterprise Standards & Specifications (H4 -> H5) */}
-        <TechnicalSpecs />
+            {/* 3. Merging PDFs made simple (H2 -> H3) */}
+            <Features />
 
-        {/* 6. Frequently Asked Questions (H2 -> H3) */}
-        <FAQ />
+            {/* 4. Discover PDF's products (H2 -> H3) */}
+            <Products />
+
+            {/* 5. Enterprise Standards & Specifications (H4 -> H5) */}
+            <TechnicalSpecs />
+
+            {/* 6. Frequently Asked Questions (H2 -> H3) */}
+            <FAQ />
+          </>
+        )}
       </main>
 
-      {/* Footer (H4) */}
-      <Footer />
+      {/* Footer */}
+      <Footer onNavigateAbout={() => handleNavigate('about')} />
 
       {/* PDF Document Preview Modal */}
       {previewState.isOpen && (
