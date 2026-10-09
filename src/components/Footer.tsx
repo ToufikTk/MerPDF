@@ -3,9 +3,17 @@ import { X, ShieldCheck, FileText, Cookie, Mail, CheckCircle } from 'lucide-reac
 
 interface FooterProps {
   onNavigateAbout?: () => void;
+  onNavigatePrivacy?: () => void;
+  onNavigateTerms?: () => void;
+  onNavigateCookies?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigateAbout }) => {
+export const Footer: React.FC<FooterProps> = ({
+  onNavigateAbout,
+  onNavigatePrivacy,
+  onNavigateTerms,
+  onNavigateCookies,
+}) => {
   const [modalType, setModalType] = useState<
     'contact' | 'privacy' | 'terms' | 'cookies' | null
   >(null);
@@ -60,21 +68,45 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateAbout }) => {
               </button>
               <button
                 type="button"
-                onClick={() => setModalType('privacy')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigatePrivacy) {
+                    onNavigatePrivacy();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    setModalType('privacy');
+                  }
+                }}
                 className="hover:text-gray-900 transition-colors"
               >
                 Privacy Policy
               </button>
               <button
                 type="button"
-                onClick={() => setModalType('terms')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigateTerms) {
+                    onNavigateTerms();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    setModalType('terms');
+                  }
+                }}
                 className="hover:text-gray-900 transition-colors"
               >
                 Terms of Service
               </button>
               <button
                 type="button"
-                onClick={() => setModalType('cookies')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigateCookies) {
+                    onNavigateCookies();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    setModalType('cookies');
+                  }
+                }}
                 className="hover:text-gray-900 transition-colors"
               >
                 Cookies Policy

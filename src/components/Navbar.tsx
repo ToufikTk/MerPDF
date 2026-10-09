@@ -2,8 +2,22 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
 interface NavbarProps {
-  activePage: 'home' | 'how-it-works' | 'about';
-  onNavigate: (page: 'home' | 'how-it-works' | 'about') => void;
+  activePage:
+    | 'home'
+    | 'how-it-works'
+    | 'about'
+    | 'privacy-policy'
+    | 'terms-of-service'
+    | 'cookies-policy';
+  onNavigate: (
+    page:
+      | 'home'
+      | 'how-it-works'
+      | 'about'
+      | 'privacy-policy'
+      | 'terms-of-service'
+      | 'cookies-policy'
+  ) => void;
   onOpenUpload?: () => void;
 }
 
