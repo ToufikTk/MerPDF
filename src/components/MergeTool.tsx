@@ -33,9 +33,15 @@ import { getSiteConfig } from '../services/siteConfigService';
 
 interface MergeToolProps {
   onPreviewPdf: (url: string, name: string) => void;
+  hideHeaderTitle?: boolean;
+  embedded?: boolean;
 }
 
-export const MergeTool: React.FC<MergeToolProps> = ({ onPreviewPdf }) => {
+export const MergeTool: React.FC<MergeToolProps> = ({
+  onPreviewPdf,
+  hideHeaderTitle = false,
+  embedded = false,
+}) => {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [files, setFiles] = useState<UploadedFileItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -221,7 +227,14 @@ export const MergeTool: React.FC<MergeToolProps> = ({ onPreviewPdf }) => {
   };
 
   return (
-    <section id="merge-tool" className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section
+      id={embedded ? undefined : 'merge-tool'}
+      className={
+        embedded
+          ? 'relative w-full'
+          : 'relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto'
+      }
+    >
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}
@@ -233,15 +246,17 @@ export const MergeTool: React.FC<MergeToolProps> = ({ onPreviewPdf }) => {
       />
 
       {/* Main Title & Subtitle */}
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
-          {getSiteConfig().seo.h1 || 'Merge PDF Files Online for Free'}
-        </h1>
-        <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-          <strong className="text-gray-950 font-semibold">{getSiteConfig().tagline || 'Merge. Combine. Simplify.'}</strong>{' '}
-          {getSiteConfig().seo.metaDescription || 'Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.'}
-        </p>
-      </div>
+      {!hideHeaderTitle && (
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
+            {getSiteConfig().seo.h1 || 'Merge PDF Files Online for Free'}
+          </h1>
+          <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
+            <strong className="text-gray-950 font-semibold">{getSiteConfig().tagline || 'Merge. Combine. Simplify.'}</strong>{' '}
+            {getSiteConfig().seo.metaDescription || 'Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.'}
+          </p>
+        </div>
+      )}
 
       {/* Outer Tool Card */}
       <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-gray-200/90 shadow-sm p-6 sm:p-10 transition-all">

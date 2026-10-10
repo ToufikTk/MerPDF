@@ -594,6 +594,39 @@ export const SiteOwnerDashboard: React.FC<SiteOwnerDashboardProps> = ({
               </div>
 
               <div className="space-y-3.5">
+                {/* Instagram */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#fafafa] border border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="toggle-instagram"
+                      checked={config.socialVisibility.instagram}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          socialVisibility: { ...config.socialVisibility, instagram: e.target.checked },
+                        })
+                      }
+                      className="w-4 h-4 rounded text-black cursor-pointer"
+                    />
+                    <label htmlFor="toggle-instagram" className="text-xs font-bold text-gray-900 cursor-pointer">
+                      Instagram Link
+                    </label>
+                  </div>
+                  <input
+                    type="url"
+                    value={config.socialLinks.instagram}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        socialLinks: { ...config.socialLinks, instagram: e.target.value },
+                      })
+                    }
+                    placeholder="https://instagram.com/yourhandle"
+                    className="flex-1 max-w-md px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-xs text-gray-900 focus:outline-none focus:border-black"
+                  />
+                </div>
+
                 {/* Twitter / X */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#fafafa] border border-gray-200">
                   <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Instagram } from 'lucide-react';
 import { getSiteConfig, SiteConfig } from '../services/siteConfigService';
 
 interface ContactPageProps {
@@ -188,19 +188,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
           {/* Card 1: Email, Response Time, Follow Us */}
           <div className="bg-[#f4f4f5]/65 border border-gray-200/70 rounded-3xl p-7 sm:p-8 space-y-6">
             <div>
-              <span className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 font-['Plus_Jakarta_Sans']">
+              <span className="block text-xs font-bold uppercase tracking-wider text-[#7a8b9e] mb-1.5 font-['Plus_Jakarta_Sans']">
                 EMAIL
               </span>
               <a
-                href={`mailto:${siteConfig.supportEmail || 'support@mergepdf.example'}`}
+                href={`mailto:${siteConfig.supportEmail || 'voskvisa@gmail.com'}`}
                 className="text-sm font-medium text-gray-900 hover:underline"
               >
-                {siteConfig.supportEmail || 'support@mergepdf.example'}
+                {siteConfig.supportEmail || 'voskvisa@gmail.com'}
               </a>
             </div>
 
             <div>
-              <span className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 font-['Plus_Jakarta_Sans']">
+              <span className="block text-xs font-bold uppercase tracking-wider text-[#7a8b9e] mb-1.5 font-['Plus_Jakarta_Sans']">
                 RESPONSE TIME
               </span>
               <p className="text-sm text-gray-900 font-medium">
@@ -210,7 +210,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
 
             {siteConfig.contactPhone && (
               <div>
-                <span className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 font-['Plus_Jakarta_Sans']">
+                <span className="block text-xs font-bold uppercase tracking-wider text-[#7a8b9e] mb-1.5 font-['Plus_Jakarta_Sans']">
                   PHONE
                 </span>
                 <p className="text-sm text-gray-900 font-medium">
@@ -220,18 +220,33 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
             )}
 
             <div>
-              <span className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 font-['Plus_Jakarta_Sans']">
+              <span className="block text-xs font-bold uppercase tracking-wider text-[#7a8b9e] mb-3 font-['Plus_Jakarta_Sans']">
                 FOLLOW US
               </span>
-              <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-700">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Instagram Button matching screenshot */}
+                {siteConfig.socialVisibility.instagram && (
+                  <a
+                    href={siteConfig.socialLinks.instagram || 'https://instagram.com'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-12 h-12 rounded-2xl bg-[#f0f3f6] hover:bg-[#e4e8ee] text-[#2c3e50] hover:text-black flex items-center justify-center transition-all shadow-2xs group cursor-pointer"
+                    title="Instagram"
+                    aria-label="Follow us on Instagram"
+                  >
+                    <Instagram className="w-6 h-6 stroke-[2] text-[#2c3e50] group-hover:scale-105 transition-transform" />
+                  </a>
+                )}
                 {siteConfig.socialVisibility.twitter && siteConfig.socialLinks.twitter && (
                   <a
                     href={siteConfig.socialLinks.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-950 transition-colors"
+                    className="w-12 h-12 rounded-2xl bg-[#f0f3f6] hover:bg-[#e4e8ee] text-[#2c3e50] hover:text-black flex items-center justify-center transition-all shadow-2xs group cursor-pointer"
+                    title="Twitter / X"
+                    aria-label="Twitter / X"
                   >
-                    Twitter
+                    <span className="font-bold text-base">𝕏</span>
                   </a>
                 )}
                 {siteConfig.socialVisibility.github && siteConfig.socialLinks.github && (
@@ -239,9 +254,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
                     href={siteConfig.socialLinks.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-950 transition-colors"
+                    className="w-12 h-12 rounded-2xl bg-[#f0f3f6] hover:bg-[#e4e8ee] text-[#2c3e50] hover:text-black flex items-center justify-center transition-all shadow-2xs group cursor-pointer"
+                    title="GitHub"
+                    aria-label="GitHub"
                   >
-                    GitHub
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                    </svg>
                   </a>
                 )}
                 {siteConfig.socialVisibility.linkedin && siteConfig.socialLinks.linkedin && (
@@ -249,9 +268,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
                     href={siteConfig.socialLinks.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-950 transition-colors"
+                    className="w-12 h-12 rounded-2xl bg-[#f0f3f6] hover:bg-[#e4e8ee] text-[#2c3e50] hover:text-black flex items-center justify-center transition-all shadow-2xs group cursor-pointer"
+                    title="LinkedIn"
+                    aria-label="LinkedIn"
                   >
-                    LinkedIn
+                    <span className="font-bold text-sm">in</span>
                   </a>
                 )}
                 {siteConfig.socialVisibility.facebook && siteConfig.socialLinks.facebook && (
@@ -259,9 +280,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
                     href={siteConfig.socialLinks.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-950 transition-colors"
+                    className="w-12 h-12 rounded-2xl bg-[#f0f3f6] hover:bg-[#e4e8ee] text-[#2c3e50] hover:text-black flex items-center justify-center transition-all shadow-2xs group cursor-pointer"
+                    title="Facebook"
+                    aria-label="Facebook"
                   >
-                    Facebook
+                    <span className="font-bold text-base">f</span>
                   </a>
                 )}
                 {siteConfig.socialVisibility.youtube && siteConfig.socialLinks.youtube && (
@@ -269,9 +292,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
                     href={siteConfig.socialLinks.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-950 transition-colors"
+                    className="w-12 h-12 rounded-2xl bg-[#f0f3f6] hover:bg-[#e4e8ee] text-[#2c3e50] hover:text-black flex items-center justify-center transition-all shadow-2xs group cursor-pointer"
+                    title="YouTube"
+                    aria-label="YouTube"
                   >
-                    YouTube
+                    <span className="text-sm">▶</span>
                   </a>
                 )}
               </div>

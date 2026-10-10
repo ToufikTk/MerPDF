@@ -11,6 +11,7 @@ import { PreviewModal } from './components/PreviewModal';
 import { AboutPage } from './components/AboutPage';
 import { HowItWorksPage } from './components/HowItWorksPage';
 import { FAQPage } from './components/FAQPage';
+import { StudioPage } from './components/StudioPage';
 import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 import { TermsOfServicePage } from './components/TermsOfServicePage';
 import { CookiesPolicyPage } from './components/CookiesPolicyPage';
@@ -47,6 +48,7 @@ export default function App() {
     | 'how-it-works'
     | 'faq'
     | 'about'
+    | 'studio'
     | 'privacy-policy'
     | 'terms-of-service'
     | 'cookies-policy'
@@ -63,6 +65,7 @@ export default function App() {
     ) {
       return 'site-owner';
     }
+    if (window.location.hash === '#studio') return 'studio';
     if (window.location.hash === '#about') return 'about';
     if (window.location.hash === '#how-it-works') return 'how-it-works';
     if (window.location.hash === '#faq') return 'faq';
@@ -120,7 +123,9 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#about') {
+      if (window.location.hash === '#studio') {
+        setActivePage('studio');
+      } else if (window.location.hash === '#about') {
         setActivePage('about');
       } else if (window.location.hash === '#how-it-works') {
         setActivePage('how-it-works');
@@ -188,6 +193,7 @@ export default function App() {
       | 'how-it-works'
       | 'faq'
       | 'about'
+      | 'studio'
       | 'privacy-policy'
       | 'terms-of-service'
       | 'cookies-policy'
@@ -198,7 +204,9 @@ export default function App() {
       | 'site-owner'
   ) => {
     setActivePage(page);
-    if (page === 'about') {
+    if (page === 'studio') {
+      window.location.hash = '#studio';
+    } else if (page === 'about') {
       window.location.hash = '#about';
     } else if (page === 'how-it-works') {
       window.location.hash = '#how-it-works';
@@ -230,6 +238,7 @@ export default function App() {
       }
     } else {
       if (
+        window.location.hash === '#studio' ||
         window.location.hash === '#about' ||
         window.location.hash === '#how-it-works' ||
         window.location.hash === '#privacy-policy' ||
@@ -329,6 +338,13 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1">
+        {activePage === 'studio' && (
+          <StudioPage
+            onGoToMerge={() => handleNavigate('home')}
+            onPreviewPdf={handleOpenPreview}
+          />
+        )}
+
         {activePage === 'about' && (
           <AboutPage onGoToMerge={() => handleNavigate('home')} />
         )}
@@ -529,7 +545,7 @@ export default function App() {
             <HowItWorks />
 
             {/* 3. Merging PDFs made simple (H2 -> H3) */}
-            <Features />
+            <Features onGetStarted={scrollToMerge} />
 
             {/* 4. Discover PDF's products (H2 -> H3) */}
             <Products />

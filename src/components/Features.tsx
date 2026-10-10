@@ -1,158 +1,160 @@
 import React from 'react';
+import {
+  Cloud,
+  ShieldCheck,
+  FileCheck,
+  Zap,
+  SlidersHorizontal,
+  MonitorSmartphone,
+  EyeOff,
+  Sparkles,
+} from 'lucide-react';
 import { getSiteConfig } from '../services/siteConfigService';
 
-export const Features: React.FC = () => {
+interface FeaturesProps {
+  onGetStarted?: () => void;
+}
+
+export const Features: React.FC<FeaturesProps> = () => {
+
+  const featureCards = [
+    {
+      title: 'Cloud-First Workflow',
+      tag: 'Cloud-First',
+      description:
+        'Seamlessly import files straight from Google Drive or cloud storage, merge in real time, and save back instantly to your workspace.',
+      highlight: 'Google Workspace Ready',
+      icon: Cloud,
+      iconBg: 'bg-[#e0f2fe]',
+      iconColor: 'text-[#0284c7]',
+    },
+    {
+      title: 'Enterprise-Grade Security',
+      tag: 'Enterprise Security',
+      description:
+        'Documents are protected with client-side 256-bit encryption. Strict zero-storage architecture complies with corporate compliance standards.',
+      highlight: 'ISO 27001 & HIPAA Aligned',
+      icon: ShieldCheck,
+      iconBg: 'bg-[#e8f7f6]',
+      iconColor: 'text-[#0a5255]',
+    },
+    {
+      title: 'Verified Signatures & Standards',
+      tag: 'Verified Signatures',
+      description:
+        'Preserves digital signatures, embedded font glyphs, and ISO 32000-2 archival PDF/A fidelity without file degradation or tampering.',
+      highlight: 'Cryptographic Integrity',
+      icon: FileCheck,
+      iconBg: 'bg-[#ede9fe]',
+      iconColor: 'text-[#7c3aed]',
+    },
+    {
+      title: 'High-Performance Scalability',
+      tag: 'Scalability',
+      description:
+        'Engineered to combine dozens of multi-megabyte PDFs or massive documents in seconds with multi-threaded, low-latency processing.',
+      highlight: 'Sub-Second Speed',
+      icon: Zap,
+      iconBg: 'bg-[#ffedd5]',
+      iconColor: 'text-[#c2410c]',
+    },
+    {
+      title: 'Precision Page Organization',
+      tag: 'Visual Control',
+      description:
+        'Take full command of your documents. Reorder pages, rotate orientations, remove blank sheets, and preview each sheet interactively.',
+      highlight: 'Intuitive Drag & Drop',
+      icon: SlidersHorizontal,
+      iconBg: 'bg-[#fce7f3]',
+      iconColor: 'text-[#be185d]',
+    },
+    {
+      title: 'Universal Device Access',
+      tag: 'Cross-Platform',
+      description:
+        'Merge documents across macOS, Windows, iPhone, Android, and Linux directly in your browser with zero plugins or installation required.',
+      highlight: 'Zero Software Install',
+      icon: MonitorSmartphone,
+      iconBg: 'bg-[#e0e7ff]',
+      iconColor: 'text-[#4338ca]',
+    },
+    {
+      title: 'Zero Data Retention',
+      tag: '100% Privacy',
+      description:
+        'Files are processed in temporary browser memory and never uploaded to remote servers. All session data is immediately discarded upon closing.',
+      highlight: 'Client-Memory Only',
+      icon: EyeOff,
+      iconBg: 'bg-[#f3f4f6]',
+      iconColor: 'text-[#374151]',
+    },
+    {
+      title: 'Seamless User Experience',
+      tag: 'User Experience',
+      description:
+        'A clean, modern interface designed for speed and simplicity. Merge multiple PDFs in one click and preview or download immediately.',
+      highlight: 'Frictionless Workflow',
+      icon: Sparkles,
+      iconBg: 'bg-[#ccfbf1]',
+      iconColor: 'text-[#0f766e]',
+    },
+  ];
+
   return (
     <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Section Header */}
-      <div className="max-w-3xl mb-16">
-        <h2 className="text-3xl sm:text-4xl lg:text-4xl font-bold tracking-tight text-gray-950 mb-3 font-['Plus_Jakarta_Sans']">
+      {/* Header */}
+      <div className="max-w-3xl mb-12 sm:mb-16">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
           {getSiteConfig().seo.h2 || 'Combine Multiple PDF Files into One Document'}
         </h2>
         <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-          Merge PDFs effortlessly with our free tool. Combine multiple files into one organized document in just a few clicks.
+          Engineered for security, scalability, and seamless user experience. Merge PDFs effortlessly with our fast, free tool. Combine multiple files into one organized document in just a few clicks without compromising privacy.
         </p>
       </div>
 
-      {/* 6 Feature Items Grid matching Screenshot 2 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-        {/* Feature 1 */}
-        <div className="flex flex-col items-start">
-          <div className="w-16 h-16 rounded-full bg-[#e8f7f6] flex items-center justify-center mb-6">
-            <svg
-              className="w-8 h-8 text-[#0a5255]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
+      {/* 8 Feature Cards Grid matching Screenshot */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {featureCards.map((card, index) => {
+          const IconComponent = card.icon;
+          return (
+            <div
+              key={card.title}
+              className="bg-[#fcfbf9] border border-[#f1ece5] rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:bg-white hover:border-gray-300 hover:shadow-lg transition-all duration-300 group relative"
             >
-              <rect x="7" y="3" width="13" height="13" rx="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M4 8H3a1 1 0 00-1 1v11a1 1 0 001 1h11a1 1 0 001-1v-1" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 font-['Plus_Jakarta_Sans']">
-            Combine PDFs in seconds
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal">
-            Drag and drop multiple files, arrange them directly in the dropdown, and merge everything into a single PDF in seconds. Keep documents organized and ready to share with a fast, hassle-free workflow.
-          </p>
-        </div>
+              <div>
+                {/* Icon & Category Tag */}
+                <div className="flex items-center justify-between mb-5">
+                  <div
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center ${card.iconBg} ${card.iconColor} shadow-2xs group-hover:scale-105 transition-transform duration-300`}
+                  >
+                    <IconComponent className="w-6 h-6 stroke-[2]" />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8b9e] font-['Plus_Jakarta_Sans']">
+                    {card.tag}
+                  </span>
+                </div>
 
-        {/* Feature 2 */}
-        <div className="flex flex-col items-start">
-          <div className="w-16 h-16 rounded-full bg-[#e8f7f6] flex items-center justify-center mb-6">
-            <svg
-              className="w-8 h-8 text-[#0a5255]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path d="M4 17L9 7L14 7L9 17H4Z" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M14 7L19 17H9" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M15 17L20 7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 font-['Plus_Jakarta_Sans']">
-            Works seamlessly with Google Drive
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal">
-            Import files straight from Google Drive, merge them, and save back instantly. Stay productive without leaving your workspace. Access and combine documents from your cloud storage with seamless Google Workspace connectivity.
-          </p>
-        </div>
+                {/* Card Title */}
+                <h3 className="text-lg font-bold text-gray-950 mb-2 font-['Plus_Jakarta_Sans'] group-hover:text-black">
+                  {card.title}
+                </h3>
 
-        {/* Feature 3 */}
-        <div className="flex flex-col items-start">
-          <div className="w-16 h-16 rounded-full bg-[#e8f7f6] flex items-center justify-center mb-6">
-            <svg
-              className="w-8 h-8 text-[#0a5255]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <rect x="5" y="11" width="14" height="10" rx="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M8 11V7a4 4 0 018 0v4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 font-['Plus_Jakarta_Sans']">
-            Enterprise-level security for your files
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal">
-            Your documents stay safe with enterprise-grade encryption. Every file is protected and automatically deleted after processing. Industry-standard security protocols ensure your sensitive information remains confidential throughout the merging process.
-          </p>
-        </div>
+                {/* Card Description */}
+                <p className="text-sm text-gray-600 leading-relaxed font-normal mb-6">
+                  {card.description}
+                </p>
+              </div>
 
-        {/* Feature 4 */}
-        <div className="flex flex-col items-start">
-          <div className="w-16 h-16 rounded-full bg-[#e8f7f6] flex items-center justify-center mb-6">
-            <svg
-              className="w-8 h-8 text-[#0a5255]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <rect x="2" y="5" width="14" height="11" rx="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M18 10V18a1 1 0 01-1 1h-7" strokeLinecap="round" strokeLinejoin="round" />
-              <rect x="15" y="9" width="7" height="11" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 font-['Plus_Jakarta_Sans']">
-            Merge PDFs on any device
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal">
-            Combine multiple PDFs into a single, organized file on Mac, Windows, Android, iPhone or Linux — all from your browser. No matter which system you use, you can merge files instantly and keep everything in one easy-to-share document.
-          </p>
-        </div>
-
-        {/* Feature 5 */}
-        <div className="flex flex-col items-start">
-          <div className="w-16 h-16 rounded-full bg-[#e8f7f6] flex items-center justify-center mb-6">
-            <svg
-              className="w-8 h-8 text-[#0a5255]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-              <rect x="4" y="4" width="16" height="16" rx="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 font-['Plus_Jakarta_Sans']">
-            Full control over your pages
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal">
-            Take control of your PDFs. Rearrange pages, split large files, or rotate pages to create the perfect document order. Fine-tune your merged documents with precision page management tools for professional results.
-          </p>
-        </div>
-
-        {/* Feature 6 */}
-        <div className="flex flex-col items-start">
-          <div className="w-16 h-16 rounded-full bg-[#e8f7f6] flex items-center justify-center mb-6">
-            <svg
-              className="w-8 h-8 text-[#0a5255]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path d="M2 10C5.5 6.5 18.5 6.5 22 10" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M5 14C8 11.5 16 11.5 19 14" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M8.5 17.5C10.5 16 13.5 16 15.5 17.5" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="12" cy="20.5" r="1" fill="currentColor" />
-              <path d="M19 5L23 9" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M23 5L19 9" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 font-['Plus_Jakarta_Sans']">
-            Works online or offline
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal">
-            No internet? No problem. Merge and edit PDFs offline, and your changes will sync when you reconnect. Continue working seamlessly whether you&apos;re connected or not, with automatic synchronization when you&apos;re back online.
-          </p>
-        </div>
+              {/* Bottom Card Footer */}
+              <div className="pt-3.5 border-t border-gray-200/70 flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-gray-500 group-hover:text-gray-800 transition-colors">
+                  {card.highlight}
+                </span>
+                <span className="text-xs text-gray-400 font-mono">0{index + 1}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

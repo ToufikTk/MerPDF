@@ -9,6 +9,7 @@ interface NavbarProps {
     | 'how-it-works'
     | 'faq'
     | 'about'
+    | 'studio'
     | 'privacy-policy'
     | 'terms-of-service'
     | 'cookies-policy'
@@ -23,6 +24,7 @@ interface NavbarProps {
       | 'how-it-works'
       | 'faq'
       | 'about'
+      | 'studio'
       | 'privacy-policy'
       | 'terms-of-service'
       | 'cookies-policy'
@@ -72,6 +74,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleAboutClick = (e: React.MouseEvent) => {
     e.preventDefault();
     onNavigate('about');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setMobileMenuOpen(false);
+  };
+
+  const handleStudioClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onNavigate('studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setMobileMenuOpen(false);
   };
@@ -195,6 +204,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               About
             </a>
+            <a
+              href="#studio"
+              onClick={handleStudioClick}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                activePage === 'studio'
+                  ? 'text-gray-950 font-bold bg-gray-100'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Studio
+            </a>
           </nav>
 
           {/* Right Action Buttons */}
@@ -265,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleTryForFree}
               className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-[#111827] hover:bg-black rounded-full shadow-sm hover:shadow transition-all duration-150 cursor-pointer"
             >
-              Try for free
+              Get Started
             </button>
           </div>
 
@@ -288,7 +308,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleTryForFree}
               className="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-semibold text-white bg-black rounded-full cursor-pointer"
             >
-              Try for free
+              Get Started
             </button>
             <button
               type="button"
@@ -337,6 +357,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             About
+          </a>
+          <a
+            href="#studio"
+            onClick={handleStudioClick}
+            className={`block px-3 py-2 text-base font-medium rounded-lg ${
+              activePage === 'studio'
+                ? 'text-gray-950 font-bold bg-gray-100'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            Studio
           </a>
           <div className="pt-4 border-t border-gray-100 flex flex-col space-y-2">
             {currentUser ? (
@@ -390,7 +421,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleTryForFree}
               className="w-full text-center py-2.5 px-4 rounded-full bg-black text-white font-medium text-sm cursor-pointer"
             >
-              Try for free
+              Get Started
             </button>
           </div>
         </div>

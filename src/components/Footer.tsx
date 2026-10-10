@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShieldCheck, FileText, Cookie, Mail, CheckCircle } from 'lucide-react';
+import { X, ShieldCheck, FileText, Cookie, Mail, CheckCircle, Instagram } from 'lucide-react';
 import { getSiteConfig, SiteConfig } from '../services/siteConfigService';
 
 interface FooterProps {
@@ -68,6 +68,17 @@ export const Footer: React.FC<FooterProps> = ({
 
             {/* Center / Right: Social Media Icons (with links) */}
             <div className="flex items-center space-x-3.5">
+              {siteConfig.socialVisibility.instagram && siteConfig.socialLinks.instagram && (
+                <a
+                  href={siteConfig.socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-all text-xs"
+                  title="Instagram"
+                >
+                  <Instagram className="w-4 h-4 stroke-[2]" />
+                </a>
+              )}
               {siteConfig.socialVisibility.twitter && siteConfig.socialLinks.twitter && (
                 <a
                   href={siteConfig.socialLinks.twitter}

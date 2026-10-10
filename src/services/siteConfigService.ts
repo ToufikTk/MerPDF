@@ -27,6 +27,7 @@ export interface SiteConfig {
 
   // 3. Social Media Links & Visibility
   socialLinks: {
+    instagram: string;
     twitter: string;
     github: string;
     linkedin: string;
@@ -34,6 +35,7 @@ export interface SiteConfig {
     youtube: string;
   };
   socialVisibility: {
+    instagram: boolean;
     twitter: boolean;
     github: boolean;
     linkedin: boolean;
@@ -80,6 +82,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   responseTime: 'Within 24 hours on business days',
 
   socialLinks: {
+    instagram: 'https://instagram.com',
     twitter: 'https://twitter.com',
     github: 'https://github.com',
     linkedin: 'https://linkedin.com',
@@ -87,9 +90,10 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     youtube: '',
   },
   socialVisibility: {
-    twitter: true,
-    github: true,
-    linkedin: true,
+    instagram: false,
+    twitter: false,
+    github: false,
+    linkedin: false,
     facebook: false,
     youtube: false,
   },
@@ -194,8 +198,16 @@ export function getSiteConfig(): SiteConfig {
     return {
       ...DEFAULT_SITE_CONFIG,
       ...parsed,
-      socialLinks: { ...DEFAULT_SITE_CONFIG.socialLinks, ...(parsed.socialLinks || {}) },
-      socialVisibility: { ...DEFAULT_SITE_CONFIG.socialVisibility, ...(parsed.socialVisibility || {}) },
+      socialLinks: {
+        ...DEFAULT_SITE_CONFIG.socialLinks,
+        ...(parsed.socialLinks || {}),
+        instagram: parsed.socialLinks?.instagram || DEFAULT_SITE_CONFIG.socialLinks.instagram,
+      },
+      socialVisibility: {
+        ...DEFAULT_SITE_CONFIG.socialVisibility,
+        ...(parsed.socialVisibility || {}),
+        instagram: parsed.socialVisibility?.instagram !== undefined ? parsed.socialVisibility.instagram : false,
+      },
       seo: { ...DEFAULT_SITE_CONFIG.seo, ...(parsed.seo || {}) },
       legalPages: {
         privacyPolicy: {
