@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import {
+  Upload,
   UploadCloud,
   ChevronDown,
   Trash2,
@@ -20,7 +21,8 @@ import {
   RefreshCw,
   Sparkles,
   HardDrive,
-  FolderOpen
+  FolderOpen,
+  Link2
 } from 'lucide-react';
 import { UploadedFileItem } from '../types';
 import {
@@ -62,11 +64,23 @@ export const MergeTool: React.FC<MergeToolProps> = ({
     fileInputRef.current?.click();
   };
 
+  // Maximum total file size limit: 20MB
+  const MAX_TOTAL_BYTES = 20 * 1024 * 1024;
+
   // Process selected files
   const processFiles = async (fileList: FileList | File[]) => {
+    const list = Array.from(fileList);
+    const currentTotal = files.reduce((acc, f) => acc + f.size, 0);
+    const incomingTotal = list.reduce((acc, f) => acc + f.size, 0);
+
+    if (currentTotal + incomingTotal > MAX_TOTAL_BYTES) {
+      alert('Maximum file size exceeded: Please ensure total file size is under 20MB.');
+      return;
+    }
+
     const newItems: UploadedFileItem[] = [];
 
-    for (const file of Array.from(fileList)) {
+    for (const file of list) {
       let previewUrl: string | undefined = undefined;
       if (file.type.startsWith('image/')) {
         previewUrl = URL.createObjectURL(file);
@@ -118,6 +132,17 @@ export const MergeTool: React.FC<MergeToolProps> = ({
       processFiles(e.dataTransfer.files);
     }
   };
+
+  // Clipboard paste support (Cmd+V / Ctrl+V)
+  React.useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+        processFiles(e.clipboardData.files);
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [files]);
 
   // Load sample documents for instant testing without hunting for local files
   const handleLoadSampleDocuments = async () => {
@@ -240,7 +265,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept=".pdf,application/pdf,image/png,image/jpeg,image/jpg"
+        accept=".pdf,application/pdf,image/png,image/jpeg,image/jpg,.docx,.xlsx,.pptx"
         className="hidden"
         onChange={handleFileInputChange}
       />
@@ -258,220 +283,117 @@ export const MergeTool: React.FC<MergeToolProps> = ({
         </div>
       )}
 
-      {/* Outer Tool Card */}
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-gray-200/90 shadow-sm p-6 sm:p-10 transition-all">
-        {/* Stepper Header */}
-        <div className="max-w-md mx-auto mb-8 sm:mb-10">
-          <div className="flex items-center justify-between relative">
-            {/* Connecting line between Step 1 and Step 2 */}
-            <div className="absolute top-4 left-1/4 right-1/4 h-[2px] bg-gray-200 z-0" />
-            <div
-              className={`absolute top-4 left-1/4 h-[2px] bg-black transition-all duration-300 z-0 ${
-                currentStep >= 2 ? 'w-1/2' : 'w-0'
-              }`}
-            />
-
-            {/* Step 1 */}
-            <div className="relative z-10 flex flex-col items-center flex-1">
-              <button
-                type="button"
-                onClick={() => {
-                  if (files.length > 0) setCurrentStep(1);
-                }}
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-                  currentStep === 1
-                    ? 'border-2 border-black bg-white text-black shadow-sm'
-                    : files.length > 0
-                    ? 'bg-black text-white'
-                    : 'border-2 border-gray-300 text-gray-400 bg-white'
-                }`}
-              >
-                {files.length > 0 && currentStep > 1 ? (
-                  <Check className="w-4 h-4 stroke-[2.5]" />
-                ) : (
-                  '1'
-                )}
-              </button>
-              <span
-                className={`text-xs sm:text-sm font-medium mt-2 ${
-                  currentStep === 1 ? 'text-gray-900 font-semibold' : 'text-gray-500'
-                }`}
-              >
-                Upload files
-              </span>
-            </div>
-
-            {/* Step 2 */}
-            <div className="relative z-10 flex flex-col items-center flex-1">
-              <button
-                type="button"
-                onClick={() => {
-                  if (files.length > 0) setCurrentStep(2);
-                }}
-                disabled={files.length === 0}
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-                  currentStep === 2
-                    ? 'border-2 border-black bg-white text-black shadow-sm ring-2 ring-black/5'
-                    : currentStep === 3
-                    ? 'bg-black text-white'
-                    : 'border-2 border-gray-200 text-gray-400 bg-white'
-                }`}
-              >
-                {currentStep === 3 ? <Check className="w-4 h-4 stroke-[2.5]" /> : '2'}
-              </button>
-              <span
-                className={`text-xs sm:text-sm font-medium mt-2 ${
-                  currentStep >= 2 ? 'text-gray-900 font-semibold' : 'text-gray-400'
-                }`}
-              >
-                Arrange file positions
-              </span>
-            </div>
-          </div>
-        </div>
-
+      {/* Main Tool Container (without outer frame) */}
+      <div className="max-w-4xl mx-auto transition-all">
         {/* STEP 1: UPLOAD DROPZONE */}
         {currentStep === 1 && (
           <div className="space-y-6">
+            {/* Widget Container matching the uploaded design */}
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={handleSelectFiles}
-              className={`relative border-2 border-dashed rounded-2xl py-12 px-6 sm:py-16 flex flex-col items-center justify-center text-center transition-all cursor-pointer group ${
+              className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-200/90 bg-[#fafafa]/60 shadow-2xs transition-all cursor-pointer group ${
                 isDragging
-                  ? 'border-blue-500 bg-blue-50/50 scale-[0.99]'
-                  : 'border-gray-200 bg-[#fafafa]/60 hover:bg-[#fafafa] hover:border-gray-300'
+                  ? 'border-orange-400 bg-orange-50/20 scale-[0.99]'
+                  : 'hover:border-gray-300'
               }`}
             >
-              {/* Hand Illustration matching Screenshot 3 & 7 */}
-              <div className="relative w-36 h-28 flex items-center justify-center mb-2">
-                <svg
-                  viewBox="0 0 160 120"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-full transform transition-transform group-hover:-translate-y-1 duration-200"
-                >
-                  {/* Subtle ground shadow dots / mesh */}
-                  <ellipse cx="80" cy="108" rx="36" ry="7" fill="#E5E7EB" />
-                  <ellipse cx="80" cy="108" rx="28" ry="4" fill="#D1D5DB" />
+              {/* Inset Dashed Outline */}
+              <div
+                className={`border-2 border-dashed rounded-xl sm:rounded-2xl py-12 sm:py-16 px-6 sm:px-12 flex flex-col items-center justify-center text-center transition-colors ${
+                  isDragging
+                    ? 'border-[#e64a19] bg-white/60'
+                    : 'border-gray-300/80 group-hover:border-gray-400 bg-transparent'
+                }`}
+              >
+                {/* Squircle Upload Icon Box */}
+                <div className="w-14 h-14 rounded-2xl bg-gray-100/90 border border-gray-200/40 flex items-center justify-center mb-4 text-gray-500 group-hover:text-gray-700 group-hover:scale-105 transition-all duration-200">
+                  <Upload className="w-6 h-6 stroke-[1.75]" />
+                </div>
 
-                  {/* Sparkles */}
-                  <path
-                    d="M50 72L52 65L59 63L52 61L50 54L48 61L41 63L48 65L50 72Z"
-                    fill="#D1D5DB"
-                  />
-                  <path
-                    d="M112 60L113.5 55L118.5 53.5L113.5 52L112 47L110.5 52L105.5 53.5L110.5 55L112 60Z"
-                    fill="#E5E7EB"
-                  />
+                {/* Main Heading */}
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1.5 font-['Plus_Jakarta_Sans']">
+                  Drop, Upload or Paste Files
+                </h3>
 
-                  {/* Stylized Arm with orange-brown diagonal stripes */}
-                  <defs>
-                    <pattern id="sleeveStripes" width="12" height="12" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-                      <line x1="0" y1="0" x2="0" y2="12" stroke="#1F2937" strokeWidth="4" />
-                      <line x1="6" y1="0" x2="6" y2="12" stroke="#CA8A04" strokeWidth="4" />
-                    </pattern>
-                  </defs>
+                {/* Subtitle */}
+                <p className="text-xs sm:text-sm text-gray-500 font-normal mb-6">
+                  Supported formats: PDF, JPG, PNG, DOCX, XLSX, PPTX &middot; Max 20 MB
+                </p>
 
-                  <path
-                    d="M124 15L95 50L82 40L108 8Z"
-                    fill="url(#sleeveStripes)"
-                    stroke="#111827"
-                    strokeWidth="2.5"
-                    strokeLinejoin="round"
-                  />
-
-                  {/* Stylized Hand */}
-                  <path
-                    d="M95 50C92 53 84 57 78 57C72 57 66 62 67 67C68 72 73 75 78 74L90 73L93 78C90 82 82 86 75 84C70 82 66 84 66 88C66 92 71 95 78 95L94 91L96 95C93 98 86 100 81 99C76 98 72 101 73 104C74 107 80 108 87 106C96 103 103 94 106 85L111 68L95 50Z"
-                    fill="#FFFFFF"
-                    stroke="#111827"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M86 64C89 67 93 69 98 67"
-                    stroke="#111827"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M87 78C90 80 94 81 98 79"
-                    stroke="#111827"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-
-              {/* Upload Prompt Text */}
-              <p className="text-gray-900 font-semibold text-lg sm:text-xl mb-4">
-                Drag and drop or click here to upload
-              </p>
-
-              {/* Upload Button with Dropdown matching screenshot */}
-              <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
-                <div className="inline-flex rounded-full shadow-sm">
+                {/* Button Action Row */}
+                <div className="flex items-center justify-center gap-2.5">
                   <button
                     type="button"
                     onClick={handleSelectFiles}
-                    className="inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-[#111827] hover:bg-black rounded-l-full transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#e64a19] hover:bg-[#d83f10] text-white font-semibold text-sm shadow-xs transition-all cursor-pointer active:scale-98"
                   >
-                    <UploadCloud className="w-4 h-4 mr-2" />
-                    Upload file
+                    <Upload className="w-4 h-4 stroke-[2.2]" />
+                    <span>Browse</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="inline-flex items-center px-3 py-3 text-sm font-semibold text-white bg-[#111827] hover:bg-black border-l border-gray-700 rounded-r-full transition-colors"
-                    aria-label="Upload options"
-                  >
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                </div>
 
-                {/* Dropdown Menu */}
-                {isDropdownOpen && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-30 text-left animate-in fade-in zoom-in-95 duration-150">
+                  {/* Secondary Link / Import Options Button */}
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
-                      onClick={handleSelectFiles}
-                      className="w-full flex items-center px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-10 h-10 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-black flex items-center justify-center shadow-xs transition-colors cursor-pointer"
+                      title="Import from URL, Google Drive or Sample Documents"
+                      aria-label="Import options"
                     >
-                      <FolderOpen className="w-4 h-4 mr-2.5 text-gray-600" />
-                      From your computer
+                      <Link2 className="w-4 h-4 stroke-[2]" />
                     </button>
-                    <button
-                      type="button"
-                      onClick={handleLoadSampleDocuments}
-                      className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-blue-700 bg-blue-50/70 hover:bg-blue-50 rounded-xl transition-colors mt-1"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2.5 text-blue-600" />
-                      Try sample documents (1-click)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        alert('Google Drive connection ready. You can also drag and drop local files directly!');
-                      }}
-                      className="w-full flex items-center px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors mt-1"
-                    >
-                      <HardDrive className="w-4 h-4 mr-2.5 text-gray-600" />
-                      Google Drive
-                    </button>
+
+                    {/* Dropdown Menu */}
+                    {isDropdownOpen && (
+                      <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-30 text-left animate-in fade-in zoom-in-95 duration-150">
+                        <button
+                          type="button"
+                          onClick={handleLoadSampleDocuments}
+                          className="w-full flex items-center px-3 py-2.5 text-xs font-semibold text-[#e64a19] bg-orange-50/70 hover:bg-orange-50 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 mr-2 text-[#e64a19]" />
+                          Try sample documents (1-click)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            alert('Google Drive connection ready. You can also drag and drop local files directly!');
+                          }}
+                          className="w-full flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-xl transition-colors mt-1 cursor-pointer"
+                        >
+                          <HardDrive className="w-3.5 h-3.5 mr-2 text-gray-500" />
+                          Google Drive
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            const url = prompt('Enter public document or image URL to import:');
+                            if (url) {
+                              fetch(url)
+                                .then((res) => res.blob())
+                                .then((blob) => {
+                                  const filename = url.split('/').pop()?.split('#')[0].split('?')[0] || 'remote_document.pdf';
+                                  const file = new File([blob], filename, { type: blob.type || 'application/pdf' });
+                                  processFiles([file]);
+                                })
+                                .catch(() => alert('Could not fetch file from URL. Please check CORS permissions or download directly.'));
+                            }
+                          }}
+                          className="w-full flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-xl transition-colors mt-1 cursor-pointer"
+                        >
+                          <Link2 className="w-3.5 h-3.5 mr-2 text-gray-500" />
+                          Import from URL
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
-
-            {/* Bottom Format Limits & Specs */}
-            <div className="text-center text-xs sm:text-sm text-gray-500 font-normal">
-              <span>.pdf, .jpg, .jpeg, .png, .docx, .xlsx, .pptx supported</span>
-              <span className="mx-2 text-gray-300">|</span>
-              <span>Maximum file size: &lt; 20MB total</span>
             </div>
 
             {/* If files already loaded, show shortcut to Step 2 */}
@@ -480,7 +402,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-full"
+                  className="inline-flex items-center text-sm font-semibold text-gray-900 hover:text-black bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full cursor-pointer transition-colors"
                 >
                   Continue with {files.length} loaded files
                   <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -492,7 +414,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
 
         {/* STEP 2: ARRANGE & MERGE */}
         {currentStep === 2 && (
-          <div className="space-y-6">
+          <div className="space-y-6 bg-white rounded-3xl border border-gray-200/90 shadow-sm p-6 sm:p-8">
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-100">
               <div>
@@ -664,7 +586,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
 
         {/* STEP 3: MERGED READY STATE */}
         {currentStep === 3 && mergedPdfResult && (
-          <div className="text-center py-8 px-4 space-y-6">
+          <div className="text-center py-10 px-6 sm:px-10 bg-white rounded-3xl border border-gray-200/90 shadow-sm space-y-6">
             <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
               <CheckCircle2 className="w-9 h-9 stroke-[2.2]" />
             </div>
