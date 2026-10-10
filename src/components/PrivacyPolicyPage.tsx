@@ -253,7 +253,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               </li>
             </ul>
             <p className="pt-2 text-gray-700">
-              To exercise any of these rights, contact us at <a href="mailto:privacy@mergepdf.example" className="text-gray-950 font-medium underline underline-offset-2">privacy@mergepdf.example</a>. We will respond within 30 days.
+              To exercise any of these rights, contact us at <a href="mailto:Support@verpdf.com" className="text-gray-950 font-medium underline underline-offset-2">Support@verpdf.com</a>. We will respond within 30 days.
             </p>
           </section>
 
@@ -267,10 +267,10 @@ export const PrivacyPolicyPage: React.FC = () => {
             </p>
             <p>
               <a
-                href="mailto:privacy@mergepdf.example"
+                href="mailto:Support@verpdf.com"
                 className="text-gray-950 font-medium hover:underline"
               >
-                privacy@mergepdf.example
+                Support@verpdf.com
               </a>
             </p>
             <div className="pt-2 text-gray-600 text-xs sm:text-sm">

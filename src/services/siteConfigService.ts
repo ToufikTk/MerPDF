@@ -75,7 +75,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   logoType: 'stack',
   customLogoUrl: '',
 
-  supportEmail: 'voskvisa@gmail.com',
+  supportEmail: 'Support@verpdf.com',
   contactPhone: '+1 (800) 555-0199',
   officeAddress: '100 Montgomery St, Suite 1800, San Francisco, CA 94104',
   businessHours: 'Monday – Friday: 9:00 AM – 6:00 PM EST',
@@ -195,9 +195,13 @@ export function getSiteConfig(): SiteConfig {
     const raw = localStorage.getItem(STORAGE_KEY_SITE_CONFIG);
     if (!raw) return DEFAULT_SITE_CONFIG;
     const parsed = JSON.parse(raw);
+    if (!parsed.supportEmail || parsed.supportEmail === 'voskvisa@gmail.com') {
+      parsed.supportEmail = 'Support@verpdf.com';
+    }
     return {
       ...DEFAULT_SITE_CONFIG,
       ...parsed,
+      supportEmail: parsed.supportEmail || 'Support@verpdf.com',
       socialLinks: {
         ...DEFAULT_SITE_CONFIG.socialLinks,
         ...(parsed.socialLinks || {}),
@@ -249,7 +253,11 @@ export function resetSiteConfigToDefaults(): SiteConfig {
 export function verifySiteOwnerCredentials(username: string, passwordAttempt: string): boolean {
   const config = getSiteConfig();
   const cleanUser = username.trim().toLowerCase();
-  const isMatchUser = cleanUser === 'admin' || cleanUser === config.adminUsername.toLowerCase() || cleanUser === 'admin@pdfmerge.com';
+  const isMatchUser =
+    cleanUser === 'admin' ||
+    cleanUser === config.adminUsername.toLowerCase() ||
+    cleanUser === 'admin@pdfmerge.com' ||
+    cleanUser === 'support@verpdf.com';
   return isMatchUser && passwordAttempt === config.adminPasswordHash;
 }
 

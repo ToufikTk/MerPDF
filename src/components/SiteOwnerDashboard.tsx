@@ -527,7 +527,7 @@ export const SiteOwnerDashboard: React.FC<SiteOwnerDashboardProps> = ({
                     type="email"
                     value={config.supportEmail}
                     onChange={(e) => setConfig({ ...config, supportEmail: e.target.value })}
-                    placeholder="support@mergepdf.com"
+                    placeholder="Support@verpdf.com"
                     className="w-full pl-10 pr-4 py-2.5 rounded-full bg-[#f4f5f7] border border-gray-200 text-sm text-gray-900 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
                   />
                 </div>

@@ -211,10 +211,10 @@ export const CookiesPolicyPage: React.FC = () => {
             <p>
               For questions regarding our cookie practices, you may reach our compliance team at{' '}
               <a
-                href="mailto:privacy@mergepdf.example"
+                href="mailto:Support@verpdf.com"
                 className="text-gray-950 font-medium hover:underline"
               >
-                privacy@mergepdf.example
+                Support@verpdf.com
               </a>.
             </p>
           </section>

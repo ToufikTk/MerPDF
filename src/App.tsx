@@ -4,7 +4,6 @@ import { MergeTool } from './components/MergeTool';
 import { HowItWorks } from './components/HowItWorks';
 import { Features } from './components/Features';
 import { Products } from './components/Products';
-import { TechnicalSpecs } from './components/TechnicalSpecs';
 import { FAQ } from './components/FAQ';
 import { Footer } from './components/Footer';
 import { PreviewModal } from './components/PreviewModal';
@@ -458,7 +457,7 @@ export default function App() {
                     const ownerUser: UserProfile = {
                       id: 'site-owner',
                       name: 'Site Owner',
-                      email: cfg.supportEmail || 'admin@pdfmerge.com',
+                      email: cfg.supportEmail || 'Support@verpdf.com',
                       username: 'admin',
                       role: 'owner',
                       isVerified: true,
@@ -550,11 +549,8 @@ export default function App() {
             {/* 4. Discover PDF's products (H2 -> H3) */}
             <Products />
 
-            {/* 5. Enterprise Standards & Specifications (H4 -> H5) */}
-            <TechnicalSpecs />
-
             {/* 6. Frequently Asked Questions (H2 -> H3) */}
-            <FAQ />
+            <FAQ onNavigateContact={() => handleNavigate('contact')} />
           </>
         )}
       </main>

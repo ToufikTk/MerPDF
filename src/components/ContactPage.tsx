@@ -192,10 +192,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateFAQ }) => {
                 EMAIL
               </span>
               <a
-                href={`mailto:${siteConfig.supportEmail || 'voskvisa@gmail.com'}`}
+                href={`mailto:${siteConfig.supportEmail || 'Support@verpdf.com'}`}
                 className="text-sm font-medium text-gray-900 hover:underline"
               >
-                {siteConfig.supportEmail || 'voskvisa@gmail.com'}
+                {siteConfig.supportEmail || 'Support@verpdf.com'}
               </a>
             </div>
 

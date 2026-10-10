@@ -66,8 +66,12 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onGoHome, onSuccess, onN
       setLoading(false);
 
       if (mode === 'signin') {
-        // 1. Check if user is logging in as site owner using "admin"
-        if (cleanInput.toLowerCase() === 'admin' || cleanInput.toLowerCase() === 'admin@pdfmerge.com') {
+        // 1. Check if user is logging in as site owner using "admin" or owner email
+        if (
+          cleanInput.toLowerCase() === 'admin' ||
+          cleanInput.toLowerCase() === 'admin@pdfmerge.com' ||
+          cleanInput.toLowerCase() === 'support@verpdf.com'
+        ) {
           const isOwnerValid = verifySiteOwnerCredentials('admin', password);
           if (!isOwnerValid) {
             setError('Access denied: Invalid site owner password. Please enter the correct site owner password.');
@@ -79,7 +83,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onGoHome, onSuccess, onN
           const ownerUser: UserProfile = {
             id: 'site-owner',
             name: 'Site Owner',
-            email: currentConfig.supportEmail || 'admin@pdfmerge.com',
+            email: currentConfig.supportEmail || 'Support@verpdf.com',
             username: 'admin',
             role: 'owner',
             isVerified: true,

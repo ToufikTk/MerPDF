@@ -199,7 +199,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onGoToMerge }) => {
             <ArrowRight className="w-4 h-4 ml-2" />
           </button>
           <a
-            href="mailto:support@mergepdf.example"
+            href="mailto:Support@verpdf.com"
             className="inline-flex items-center px-6 py-3 rounded-full bg-gray-200/70 hover:bg-gray-200 text-gray-800 text-sm font-semibold transition-all"
           >
             <Mail className="w-4 h-4 mr-2 text-gray-600" />
