@@ -103,7 +103,7 @@ export const Features: React.FC<FeaturesProps> = () => {
   return (
     <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="max-w-3xl mb-12 sm:mb-16">
+      <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
           {getSiteConfig().seo.h2 || 'Combine Multiple PDF Files into One Document'}
         </h2>

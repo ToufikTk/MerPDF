@@ -6,7 +6,7 @@ export const HowItWorks: React.FC = () => {
   return (
     <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Section Header */}
-      <div className="max-w-3xl mb-12">
+      <div className="max-w-3xl mx-auto text-center mb-12">
         <h3 className="text-3xl sm:text-4xl lg:text-4xl font-bold tracking-tight text-gray-950 mb-3 font-['Plus_Jakarta_Sans']">
           {getSiteConfig().seo.h3 || 'How to Merge PDF Files Online'}
         </h3>

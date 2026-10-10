@@ -55,16 +55,10 @@ export const Products: React.FC = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
                 PDF
               </h3>
-              <p className="text-sm text-gray-600 leading-relaxed mb-6">
+              <p className="text-sm text-gray-600 leading-relaxed">
                 An easy-to-use PDF editor that stands alone or integrates with Google Workspace.
               </p>
             </div>
-            <a
-              href="#merge-tool"
-              className="inline-block w-fit px-5 py-2.5 border border-gray-900 text-gray-900 rounded-xl text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors"
-            >
-              Learn more
-            </a>
           </div>
         </div>
 
@@ -99,16 +93,10 @@ export const Products: React.FC = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
                 PDF Sign
               </h3>
-              <p className="text-sm text-gray-600 leading-relaxed mb-6">
+              <p className="text-sm text-gray-600 leading-relaxed">
                 A digital signature workflow tool that seals deals with legally-compliant signatures.
               </p>
             </div>
-            <a
-              href="#pricing"
-              className="inline-block w-fit px-5 py-2.5 border border-gray-900 text-gray-900 rounded-xl text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors"
-            >
-              Learn more
-            </a>
           </div>
         </div>
 
@@ -148,16 +136,10 @@ export const Products: React.FC = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-2 font-['Plus_Jakarta_Sans']">
                 PDF Sign API
               </h3>
-              <p className="text-sm text-gray-600 leading-relaxed mb-6">
+              <p className="text-sm text-gray-600 leading-relaxed">
                 An eSignature API designed to be plugged into your platform with minimal effort.
               </p>
             </div>
-            <a
-              href="#enterprise"
-              className="inline-block w-fit px-5 py-2.5 border border-gray-900 text-gray-900 rounded-xl text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors"
-            >
-              Learn more
-            </a>
           </div>
         </div>
       </div>

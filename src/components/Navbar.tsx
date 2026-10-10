@@ -172,6 +172,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Desktop Navigation Links (Centered in the middle) */}
           <nav className="hidden lg:flex items-center space-x-1.5 absolute left-1/2 -translate-x-1/2">
             <a
+              href="#studio"
+              onClick={handleStudioClick}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                activePage === 'studio'
+                  ? 'text-gray-950 font-bold bg-gray-100'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Studio
+            </a>
+            <a
               href="#how-it-works"
               onClick={handleHowItWorkClick}
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -204,21 +215,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               About
             </a>
-            <a
-              href="#studio"
-              onClick={handleStudioClick}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activePage === 'studio'
-                  ? 'text-gray-950 font-bold bg-gray-100'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              Studio
-            </a>
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="hidden lg:flex items-center space-x-5">
+          <div className="hidden lg:flex items-center space-x-3">
             {currentUser ? (
               <div className="flex items-center space-x-3">
                 {currentUser.role === 'owner' ? (
@@ -274,16 +274,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onNavigate('sign-in');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="text-sm font-medium text-gray-900 hover:text-black transition-colors px-2 py-1 cursor-pointer"
+                className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-gray-900 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
               >
-                Sign in
+                Sign In
               </button>
             )}
 
             <button
               type="button"
               onClick={handleTryForFree}
-              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-[#111827] hover:bg-black rounded-full shadow-sm hover:shadow transition-all duration-150 cursor-pointer"
+              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-black hover:bg-gray-900 rounded-xl transition-colors cursor-pointer"
             >
               Get Started
             </button>
@@ -326,6 +326,17 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-6 space-y-3">
           <a
+            href="#studio"
+            onClick={handleStudioClick}
+            className={`block px-3 py-2 text-base font-medium rounded-lg ${
+              activePage === 'studio'
+                ? 'text-gray-950 font-bold bg-gray-100'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            Studio
+          </a>
+          <a
             href="#how-it-works"
             onClick={handleHowItWorkClick}
             className={`block px-3 py-2 text-base font-medium rounded-lg ${
@@ -357,17 +368,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             About
-          </a>
-          <a
-            href="#studio"
-            onClick={handleStudioClick}
-            className={`block px-3 py-2 text-base font-medium rounded-lg ${
-              activePage === 'studio'
-                ? 'text-gray-950 font-bold bg-gray-100'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Studio
           </a>
           <div className="pt-4 border-t border-gray-100 flex flex-col space-y-2">
             {currentUser ? (
@@ -411,15 +411,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-center py-2.5 px-4 rounded-full border border-gray-200 text-gray-800 font-medium text-sm hover:bg-gray-50 cursor-pointer"
+                className="w-full text-center py-2.5 px-4 rounded-xl border border-gray-300 bg-white text-gray-900 font-semibold text-sm hover:bg-gray-50 cursor-pointer"
               >
-                Sign in
+                Sign In
               </button>
             )}
             <button
               type="button"
               onClick={handleTryForFree}
-              className="w-full text-center py-2.5 px-4 rounded-full bg-black text-white font-medium text-sm cursor-pointer"
+              className="w-full text-center py-2.5 px-4 rounded-xl bg-black text-white font-semibold text-sm hover:bg-gray-900 cursor-pointer"
             >
               Get Started
             </button>
