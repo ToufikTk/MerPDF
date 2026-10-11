@@ -501,7 +501,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
             <button
               type="button"
               onClick={handleScrollToHowItWorks}
-              className="inline-flex items-center justify-center px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-[#dff0ff] hover:bg-[#cce6fe] border border-[#b9e0fe] text-gray-900 text-sm font-semibold shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-gray-100 hover:bg-gray-200/80 border border-gray-200 text-gray-900 text-sm font-semibold shadow-2xs transition-colors cursor-pointer active:scale-98"
             >
               <span>How It Work</span>
             </button>
@@ -575,10 +575,10 @@ export const MergeTool: React.FC<MergeToolProps> = ({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={handleSelectFiles}
-              className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-[#b9e0fe] bg-[#dff0ff]/40 shadow-2xs transition-all cursor-pointer group ${
+              className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-200/90 bg-gray-50/70 shadow-2xs transition-all cursor-pointer group ${
                 isDragging
                   ? 'border-orange-400 bg-orange-50/20 scale-[0.99]'
-                  : 'hover:border-[#93c5fd] hover:bg-[#dff0ff]/60'
+                  : 'hover:border-gray-300 hover:bg-gray-100/60'
               }`}
             >
               {/* Inset Dashed Outline */}
@@ -586,7 +586,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                 className={`border-2 border-dashed rounded-xl sm:rounded-2xl py-12 sm:py-16 px-6 sm:px-12 flex flex-col items-center justify-center text-center transition-colors ${
                   isDragging
                     ? 'border-[#e64a19] bg-white/80'
-                    : 'border-[#93c5fd]/70 group-hover:border-[#60a5fa] bg-white/70'
+                    : 'border-gray-300 group-hover:border-gray-400 bg-white'
                 }`}
               >
                 {/* Squircle Upload Icon Box */}
@@ -770,7 +770,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                         </div>
                       )}
                       {item.rotation && item.rotation > 0 ? (
-                        <span className="absolute bottom-0 right-0 bg-blue-600 text-[8px] text-white px-1 font-bold rounded-tl">
+                        <span className="absolute bottom-0 right-0 bg-gray-900 text-[8px] text-white px-1 font-bold rounded-tl">
                           {item.rotation}°
                         </span>
                       ) : null}
@@ -826,7 +826,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                     <button
                       type="button"
                       onClick={() => rotateFile(index)}
-                      className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-white transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white transition-colors cursor-pointer"
                       title="Rotate 90° clockwise"
                     >
                       <RotateCw className="w-4 h-4" />

@@ -18,7 +18,7 @@ export const Products: React.FC = () => {
         {/* Card 1: PDF */}
         <div className="bg-white rounded-3xl border border-gray-100 p-3 sm:p-4 shadow-xs hover:shadow-md transition-all flex flex-col">
           {/* Visual Container */}
-          <div className="w-full h-52 sm:h-60 rounded-2xl bg-[#dff0ff] flex items-center justify-center mb-6">
+          <div className="w-full h-52 sm:h-60 rounded-2xl bg-gray-100 flex items-center justify-center mb-6">
             <div className="flex items-center space-x-3">
               <svg viewBox="0 0 32 32" fill="none" className="w-9 h-9 text-gray-950">
                 <path
