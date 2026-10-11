@@ -538,7 +538,11 @@ export default function App() {
         {activePage === 'home' && (
           <>
             {/* 1. Hero Merge Tool (H1) */}
-            <MergeTool onPreviewPdf={handleOpenPreview} />
+            <MergeTool
+              onPreviewPdf={handleOpenPreview}
+              onOpenHowItWorks={() => handleNavigate('how-it-works')}
+              onNavigateStudio={() => handleNavigate('studio')}
+            />
 
             {/* 2. How to merge PDF files online (H2 -> H3) */}
             <HowItWorks />

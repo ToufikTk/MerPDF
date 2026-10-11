@@ -92,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleTryForFree = () => {
-    onNavigate('sign-up');
+    onNavigate('studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setMobileMenuOpen(false);
   };
@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a
               href="#how-it-works"
               onClick={handleHowItWorkClick}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
                 activePage === 'how-it-works'
                   ? 'text-gray-950 font-bold bg-gray-100'
                   : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
@@ -339,7 +339,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <a
             href="#how-it-works"
             onClick={handleHowItWorkClick}
-            className={`block px-3 py-2 text-base font-medium rounded-lg ${
+            className={`block px-3 py-2 text-base font-medium rounded-lg cursor-pointer ${
               activePage === 'how-it-works'
                 ? 'text-gray-950 font-bold bg-gray-100'
                 : 'text-gray-700 hover:bg-gray-50'

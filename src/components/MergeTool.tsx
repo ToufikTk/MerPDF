@@ -42,12 +42,16 @@ interface MergeToolProps {
   onPreviewPdf: (url: string, name: string) => void;
   hideHeaderTitle?: boolean;
   embedded?: boolean;
+  onOpenHowItWorks?: () => void;
+  onNavigateStudio?: () => void;
 }
 
 export const MergeTool: React.FC<MergeToolProps> = ({
   onPreviewPdf,
   hideHeaderTitle = false,
   embedded = false,
+  onOpenHowItWorks,
+  onNavigateStudio,
 }) => {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [files, setFiles] = useState<UploadedFileItem[]>([]);
@@ -258,11 +262,24 @@ export const MergeTool: React.FC<MergeToolProps> = ({
   };
 
   const handleScrollToHowItWorks = () => {
+    if (onOpenHowItWorks) {
+      onOpenHowItWorks();
+      return;
+    }
     const el = document.getElementById('how-it-works');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     } else {
       window.location.hash = '#how-it-works';
+    }
+  };
+
+  const handleTryItFreeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigateStudio) {
+      onNavigateStudio();
+    } else {
+      window.location.hash = '#studio';
     }
   };
 
@@ -474,8 +491,8 @@ export const MergeTool: React.FC<MergeToolProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              onClick={handleSelectFiles}
-              className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#111827] hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-98"
+              onClick={handleTryItFreeClick}
+              className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-black hover:bg-gray-900 text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer active:scale-98"
             >
               <span>Try It Free</span>
               <ArrowRight className="w-4 h-4 stroke-[2.2]" />
@@ -484,11 +501,47 @@ export const MergeTool: React.FC<MergeToolProps> = ({
             <button
               type="button"
               onClick={handleScrollToHowItWorks}
-              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 text-sm font-semibold shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center justify-center px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-300 text-gray-900 text-sm font-semibold shadow-2xs transition-colors cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-amber-500" />
               <span>How It Work</span>
             </button>
+          </div>
+
+          {/* Social Proof Rating Badge */}
+          <div className="mt-6 flex justify-center">
+            <div className="inline-flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2 rounded-full bg-white border border-gray-200/90 shadow-2xs">
+              {/* Overlapping User Avatars */}
+              <div className="flex items-center -space-x-2">
+                <div className="w-6 h-6 rounded-full bg-[#4f46e5] text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white select-none">
+                  JD
+                </div>
+                <div className="w-6 h-6 rounded-full bg-[#f97316] text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white select-none">
+                  SK
+                </div>
+                <div className="w-6 h-6 rounded-full bg-[#10b981] text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white select-none">
+                  M
+                </div>
+                <div className="w-6 h-6 rounded-full bg-[#f43f5e] text-white flex items-center justify-center text-[9px] font-bold ring-2 ring-white select-none">
+                  AC
+                </div>
+              </div>
+
+              {/* 5 Rating Stars */}
+              <div className="flex items-center space-x-0.5 text-amber-400">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              </div>
+
+              {/* Rating Text */}
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <span className="font-bold text-gray-950">Rated 4.9/5</span>
+                <span className="text-gray-400 font-light">·</span>
+                <span className="text-gray-600 font-normal">100,000+ happy users</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
