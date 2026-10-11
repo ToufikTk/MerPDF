@@ -174,9 +174,9 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   },
 
   seo: {
-    seoTitle: 'Merge PDF files',
+    seoTitle: 'Merge PDF Files Online for Free',
     metaDescription:
-      'Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.',
+      'Merge. Combine. Simplify. Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.',
     h1: 'Merge PDF Files Online for Free',
     h2: 'Combine Multiple PDF Files into One Document',
     h3: 'How to Merge PDF Files Online',
@@ -212,7 +212,13 @@ export function getSiteConfig(): SiteConfig {
         ...(parsed.socialVisibility || {}),
         instagram: parsed.socialVisibility?.instagram !== undefined ? parsed.socialVisibility.instagram : false,
       },
-      seo: { ...DEFAULT_SITE_CONFIG.seo, ...(parsed.seo || {}) },
+      seo: {
+        ...DEFAULT_SITE_CONFIG.seo,
+        ...(parsed.seo || {}),
+        seoTitle: parsed.seo?.seoTitle && parsed.seo.seoTitle !== 'Merge PDF files' ? parsed.seo.seoTitle : DEFAULT_SITE_CONFIG.seo.seoTitle,
+        metaDescription: parsed.seo?.metaDescription && parsed.seo.metaDescription.includes('Merge. Combine. Simplify.') ? parsed.seo.metaDescription : DEFAULT_SITE_CONFIG.seo.metaDescription,
+        h1: DEFAULT_SITE_CONFIG.seo.h1,
+      },
       legalPages: {
         privacyPolicy: {
           ...DEFAULT_SITE_CONFIG.legalPages.privacyPolicy,

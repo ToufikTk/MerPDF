@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import {
   Upload,
@@ -20,9 +20,12 @@ import {
   Star,
   RefreshCw,
   Sparkles,
-  HardDrive,
   FolderOpen,
-  Link2
+  Link2,
+  X,
+  Loader2,
+  AlertCircle,
+  Globe
 } from 'lucide-react';
 import { UploadedFileItem } from '../types';
 import {
@@ -31,6 +34,8 @@ import {
   mergePdfFiles,
   createSamplePdf
 } from '../utils/pdfMerger';
+import { generatePdfThumbnail } from '../utils/pdfThumbnail';
+import { FilePreviewModal } from './FilePreviewModal';
 import { getSiteConfig } from '../services/siteConfigService';
 
 interface MergeToolProps {
@@ -56,12 +61,30 @@ export const MergeTool: React.FC<MergeToolProps> = ({
     size: number;
   } | null>(null);
 
+  // URL Import state
+  const [isUrlModalOpen, setIsUrlModalOpen] = useState(false);
+  const [urlInputValue, setUrlInputValue] = useState('');
+  const [isUrlImporting, setIsUrlImporting] = useState(false);
+  const [urlImportError, setUrlImportError] = useState<string | null>(null);
+  const [generalError, setGeneralError] = useState<string | null>(null);
+
+  // File Preview Modal state
+  const [viewingFile, setViewingFile] = useState<UploadedFileItem | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Trigger file browser
   const handleSelectFiles = () => {
     setIsDropdownOpen(false);
     fileInputRef.current?.click();
+  };
+
+  // Open URL Import Modal
+  const handleOpenUrlModal = () => {
+    setIsDropdownOpen(false);
+    setUrlImportError(null);
+    setUrlInputValue('');
+    setIsUrlModalOpen(true);
   };
 
   // Maximum total file size limit: 20MB
@@ -74,9 +97,10 @@ export const MergeTool: React.FC<MergeToolProps> = ({
     const incomingTotal = list.reduce((acc, f) => acc + f.size, 0);
 
     if (currentTotal + incomingTotal > MAX_TOTAL_BYTES) {
-      alert('Maximum file size exceeded: Please ensure total file size is under 20MB.');
+      setGeneralError('Maximum file size exceeded: Please ensure total file size is under 20MB.');
       return;
     }
+    setGeneralError(null);
 
     const newItems: UploadedFileItem[] = [];
 
@@ -84,6 +108,12 @@ export const MergeTool: React.FC<MergeToolProps> = ({
       let previewUrl: string | undefined = undefined;
       if (file.type.startsWith('image/')) {
         previewUrl = URL.createObjectURL(file);
+      } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        try {
+          previewUrl = await generatePdfThumbnail(file);
+        } catch (e) {
+          console.warn('PDF thumbnail generation failed for', file.name, e);
+        }
       }
 
       const pageCount = await getPdfPageCount(file);
@@ -144,6 +174,31 @@ export const MergeTool: React.FC<MergeToolProps> = ({
     return () => window.removeEventListener('paste', handlePaste);
   }, [files]);
 
+  // Ensure all PDF files have thumbnail previews generated
+  useEffect(() => {
+    let isCancelled = false;
+    files.forEach(async (fileItem) => {
+      if (
+        !fileItem.previewUrl &&
+        (fileItem.file.type === 'application/pdf' || fileItem.name.toLowerCase().endsWith('.pdf'))
+      ) {
+        try {
+          const thumb = await generatePdfThumbnail(fileItem.file);
+          if (thumb && !isCancelled) {
+            setFiles((prev) =>
+              prev.map((f) => (f.id === fileItem.id ? { ...f, previewUrl: thumb } : f))
+            );
+          }
+        } catch (err) {
+          console.warn('Could not generate thumbnail for', fileItem.name, err);
+        }
+      }
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [files]);
+
   // Load sample documents for instant testing without hunting for local files
   const handleLoadSampleDocuments = async () => {
     setIsDropdownOpen(false);
@@ -202,6 +257,15 @@ export const MergeTool: React.FC<MergeToolProps> = ({
     setFiles((prev) => [...prev].reverse());
   };
 
+  const handleScrollToHowItWorks = () => {
+    const el = document.getElementById('how-it-works');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.hash = '#how-it-works';
+    }
+  };
+
   const clearAll = () => {
     setFiles([]);
     setMergedPdfResult(null);
@@ -235,9 +299,135 @@ export const MergeTool: React.FC<MergeToolProps> = ({
       }
     } catch (error) {
       console.error('Error merging PDFs:', error);
-      alert('An error occurred while merging your PDF documents. Please make sure the files are valid.');
+      setGeneralError('An error occurred while merging your PDF documents. Please make sure the files are valid.');
     } finally {
       setIsMerging(false);
+    }
+  };
+
+  // Submit URL import
+  const handleImportUrlSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    let rawUrl = urlInputValue.trim();
+    if (!rawUrl) {
+      setUrlImportError('Please enter a valid document or image URL.');
+      return;
+    }
+
+    if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+      rawUrl = 'https://' + rawUrl;
+    }
+
+    setIsUrlImporting(true);
+    setUrlImportError(null);
+
+    try {
+      let blob: Blob | null = null;
+      let filename = '';
+      let resolvedType = 'application/pdf';
+
+      // 1. First attempt via backend proxy to bypass CORS and resolve Google Drive/Dropbox
+      try {
+        const proxyEndpoint = `/api/proxy-file?url=${encodeURIComponent(rawUrl)}`;
+        const proxyRes = await fetch(proxyEndpoint);
+
+        if (proxyRes.ok) {
+          const xFilename = proxyRes.headers.get('X-Filename');
+          if (xFilename) {
+            filename = decodeURIComponent(xFilename);
+          }
+          const cType = proxyRes.headers.get('Content-Type');
+          if (cType) {
+            resolvedType = cType.split(';')[0].trim();
+          }
+          blob = await proxyRes.blob();
+        } else {
+          let errorDetail = '';
+          try {
+            const errData = await proxyRes.json();
+            errorDetail = errData.error || '';
+          } catch {
+            errorDetail = `Server returned HTTP ${proxyRes.status}`;
+          }
+
+          if (proxyRes.status !== 404 || errorDetail) {
+            throw new Error(errorDetail || `Unable to retrieve document (HTTP ${proxyRes.status})`);
+          }
+        }
+      } catch (proxyErr: any) {
+        if (!proxyErr.message?.includes('404')) {
+          throw proxyErr;
+        }
+      }
+
+      // 2. Direct fetch fallback if proxy unavailable
+      if (!blob) {
+        const directRes = await fetch(rawUrl);
+        if (!directRes.ok) {
+          throw new Error(`Unable to download file (HTTP ${directRes.status})`);
+        }
+        resolvedType = directRes.headers.get('Content-Type') || 'application/pdf';
+        blob = await directRes.blob();
+      }
+
+      // Check if remote URL returned an HTML page (like a login or 404 page)
+      if (blob.type.includes('text/html') || resolvedType.includes('text/html')) {
+        const headerCheck = await blob.slice(0, 100).text();
+        if (!headerCheck.startsWith('%PDF')) {
+          throw new Error(
+            'The URL provided points to a web page rather than a direct document or image file. Please provide a direct download or public share link.'
+          );
+        }
+      }
+
+      // Derive filename if not resolved
+      if (!filename) {
+        try {
+          const parsed = new URL(rawUrl);
+          const pathEnd = parsed.pathname.split('/').filter(Boolean).pop();
+          if (pathEnd && pathEnd.includes('.')) {
+            filename = decodeURIComponent(pathEnd.split('?')[0].split('#')[0]);
+          }
+        } catch {}
+      }
+
+      if (!filename) {
+        const ext = resolvedType.includes('pdf')
+          ? '.pdf'
+          : resolvedType.includes('png')
+          ? '.png'
+          : resolvedType.includes('jpeg') || resolvedType.includes('jpg')
+          ? '.jpg'
+          : resolvedType.includes('sheet') || resolvedType.includes('excel')
+          ? '.xlsx'
+          : resolvedType.includes('word')
+          ? '.docx'
+          : '.pdf';
+        filename = `remote_document_${Date.now().toString().slice(-4)}${ext}`;
+      }
+
+      // Check size limit: 20MB
+      if (blob.size > MAX_TOTAL_BYTES) {
+        throw new Error('File exceeds the 20 MB size limit.');
+      }
+
+      const file = new File([blob], filename, { type: blob.type || resolvedType });
+
+      // Process file into tool
+      await processFiles([file]);
+
+      // Close modal
+      setIsUrlModalOpen(false);
+      setUrlInputValue('');
+      setUrlImportError(null);
+    } catch (err: any) {
+      console.error('Import from URL error:', err);
+      setUrlImportError(
+        err.message ||
+          'Failed to import document from this URL. Please verify the URL is public and points directly to a file.'
+      );
+    } finally {
+      setIsUrlImporting(false);
     }
   };
 
@@ -272,19 +462,57 @@ export const MergeTool: React.FC<MergeToolProps> = ({
 
       {/* Main Title & Subtitle */}
       {!hideHeaderTitle && (
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
-            {getSiteConfig().seo.h1 || 'Merge PDF Files Online for Free'}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-950 mb-4 font-['Plus_Jakarta_Sans']">
+            Merge PDF Files Online for Free
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-            <strong className="text-gray-950 font-semibold">{getSiteConfig().tagline || 'Merge. Combine. Simplify.'}</strong>{' '}
-            {getSiteConfig().seo.metaDescription || 'Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.'}
+          <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed max-w-2xl mx-auto mb-8">
+            <strong className="text-gray-950 font-semibold">Merge. Combine. Simplify.</strong> Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free.
           </p>
+
+          {/* Hero Action CTA Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={handleSelectFiles}
+              className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#111827] hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-98"
+            >
+              <span>Try It Free</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.2]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleScrollToHowItWorks}
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 text-sm font-semibold shadow-2xs transition-all cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>How It Work</span>
+            </button>
+          </div>
         </div>
       )}
 
       {/* Main Tool Container (without outer frame) */}
       <div className="max-w-4xl mx-auto transition-all">
+        {/* General Error Banner */}
+        {generalError && (
+          <div className="mb-4 p-4 rounded-2xl bg-red-50 border border-red-200/90 text-red-800 text-xs sm:text-sm flex items-center justify-between shadow-2xs animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{generalError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setGeneralError(null)}
+              className="text-red-500 hover:text-red-800 p-1 rounded-lg hover:bg-red-100 transition-colors cursor-pointer"
+              aria-label="Dismiss message"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* STEP 1: UPLOAD DROPZONE */}
         {currentStep === 1 && (
           <div className="space-y-6">
@@ -328,10 +556,10 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                   <button
                     type="button"
                     onClick={handleSelectFiles}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#e64a19] hover:bg-[#d83f10] text-white font-semibold text-sm shadow-xs transition-all cursor-pointer active:scale-98"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111827] hover:bg-black text-white font-semibold text-sm shadow-xs transition-all cursor-pointer active:scale-98"
                   >
                     <Upload className="w-4 h-4 stroke-[2.2]" />
-                    <span>Browse</span>
+                    <span>Browse Files</span>
                   </button>
 
                   {/* Secondary Link / Import Options Button */}
@@ -340,7 +568,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                       type="button"
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       className="w-10 h-10 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-black flex items-center justify-center shadow-xs transition-colors cursor-pointer"
-                      title="Import from URL, Google Drive or Sample Documents"
+                      title="Import from URL or Sample Documents"
                       aria-label="Import options"
                     >
                       <Link2 className="w-4 h-4 stroke-[2]" />
@@ -359,31 +587,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            setIsDropdownOpen(false);
-                            alert('Google Drive connection ready. You can also drag and drop local files directly!');
-                          }}
-                          className="w-full flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-xl transition-colors mt-1 cursor-pointer"
-                        >
-                          <HardDrive className="w-3.5 h-3.5 mr-2 text-gray-500" />
-                          Google Drive
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsDropdownOpen(false);
-                            const url = prompt('Enter public document or image URL to import:');
-                            if (url) {
-                              fetch(url)
-                                .then((res) => res.blob())
-                                .then((blob) => {
-                                  const filename = url.split('/').pop()?.split('#')[0].split('?')[0] || 'remote_document.pdf';
-                                  const file = new File([blob], filename, { type: blob.type || 'application/pdf' });
-                                  processFiles([file]);
-                                })
-                                .catch(() => alert('Could not fetch file from URL. Please check CORS permissions or download directly.'));
-                            }
-                          }}
+                          onClick={handleOpenUrlModal}
                           className="w-full flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-xl transition-colors mt-1 cursor-pointer"
                         >
                           <Link2 className="w-3.5 h-3.5 mr-2 text-gray-500" />
@@ -394,6 +598,17 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Quiet trust metadata with typographic separators */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-gray-500 pt-1">
+              <span>Free to use</span>
+              <span aria-hidden="true">&middot;</span>
+              <span>100% In-browser security</span>
+              <span aria-hidden="true">&middot;</span>
+              <span>No file size compromise</span>
+              <span aria-hidden="true">&middot;</span>
+              <span>Instant download</span>
             </div>
 
             {/* If files already loaded, show shortcut to Step 2 */}
@@ -430,10 +645,19 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                 <button
                   type="button"
                   onClick={handleSelectFiles}
-                  className="inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
                   Add files
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenUrlModal}
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  title="Import document from URL"
+                >
+                  <Link2 className="w-3.5 h-3.5 mr-1" />
+                  Import URL
                 </button>
                 <button
                   type="button"
@@ -468,13 +692,17 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                       {index + 1}
                     </span>
 
-                    {/* Thumbnail preview */}
-                    <div className="w-11 h-14 bg-white border border-gray-200 rounded-lg shadow-2xs flex items-center justify-center overflow-hidden shrink-0 relative">
+                    {/* Thumbnail preview - Click to preview */}
+                    <div
+                      onClick={() => setViewingFile(item)}
+                      className="w-11 h-14 bg-white border border-gray-200 rounded-lg shadow-2xs flex items-center justify-center overflow-hidden shrink-0 relative cursor-pointer hover:border-[#e64a19] hover:shadow-sm transition-all group/thumb"
+                      title="Click to preview file"
+                    >
                       {item.previewUrl ? (
                         <img
                           src={item.previewUrl}
                           alt={item.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform group-hover/thumb:scale-105"
                           style={{ transform: `rotate(${item.rotation || 0}deg)` }}
                         />
                       ) : (
@@ -495,9 +723,13 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                       ) : null}
                     </div>
 
-                    {/* Name & Size Info */}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-900 truncate" title={item.name}>
+                    {/* Name & Size Info - Click to preview */}
+                    <div
+                      onClick={() => setViewingFile(item)}
+                      className="min-w-0 flex-1 cursor-pointer"
+                      title="Click to preview file"
+                    >
+                      <p className="text-sm font-semibold text-gray-900 truncate hover:text-[#e64a19] transition-colors" title={item.name}>
                         {item.name}
                       </p>
                       <div className="flex items-center space-x-2 text-xs text-gray-500 mt-0.5">
@@ -510,13 +742,13 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                     </div>
                   </div>
 
-                  {/* Right Actions: Reorder, Rotate, Delete */}
+                  {/* Right Actions: Reorder, Preview, Rotate, Delete */}
                   <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => moveFile(index, 'up')}
                       disabled={index === 0}
-                      className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
                       title="Move Up"
                     >
                       <ArrowUp className="w-4 h-4" />
@@ -525,15 +757,23 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                       type="button"
                       onClick={() => moveFile(index, 'down')}
                       disabled={index === files.length - 1}
-                      className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
                       title="Move Down"
                     >
                       <ArrowDown className="w-4 h-4" />
                     </button>
                     <button
                       type="button"
+                      onClick={() => setViewingFile(item)}
+                      className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-white transition-colors cursor-pointer"
+                      title="Preview file"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => rotateFile(index)}
-                      className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-white transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-white transition-colors cursor-pointer"
                       title="Rotate 90° clockwise"
                     >
                       <RotateCw className="w-4 h-4" />
@@ -541,7 +781,7 @@ export const MergeTool: React.FC<MergeToolProps> = ({
                     <button
                       type="button"
                       onClick={() => removeFile(index)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-white transition-colors"
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-white transition-colors cursor-pointer"
                       title="Remove file"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -651,6 +891,168 @@ export const MergeTool: React.FC<MergeToolProps> = ({
           <span>4.8/5 (1,500+ reviews on Trustpilot)</span>
         </div>
       </div>
+
+      {/* Import from URL / Cloud Modal */}
+      {isUrlModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => {
+            if (!isUrlImporting) {
+              setIsUrlModalOpen(false);
+              setUrlImportError(null);
+            }
+          }}
+        >
+          <div
+            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-7 text-left animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-start justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#e64a19] shrink-0">
+                  <Link2 className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-950 font-['Plus_Jakarta_Sans']">
+                    Import Document from URL
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Enter a direct public link to a PDF, image, or document
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isUrlImporting) {
+                    setIsUrlModalOpen(false);
+                    setUrlImportError(null);
+                  }
+                }}
+                disabled={isUrlImporting}
+                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleImportUrlSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  Document or image URL
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                    <Globe className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={urlInputValue}
+                    onChange={(e) => {
+                      setUrlInputValue(e.target.value);
+                      if (urlImportError) setUrlImportError(null);
+                    }}
+                    placeholder="https://example.com/document.pdf"
+                    autoFocus
+                    disabled={isUrlImporting}
+                    className="w-full pl-10 pr-10 py-3 text-sm bg-gray-50/70 focus:bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#e64a19] focus:ring-3 focus:ring-orange-500/15 transition-all"
+                  />
+                  {urlInputValue && !isUrlImporting && (
+                    <button
+                      type="button"
+                      onClick={() => setUrlInputValue('')}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Sample link helper button */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-[11px] text-gray-500">
+                <span className="text-gray-400">Need a quick test link?</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUrlInputValue('https://raw.githubusercontent.com/mozilla/pdf.js/master/test/pdfs/basicapi.pdf');
+                    setUrlImportError(null);
+                  }}
+                  className="font-medium text-[#e64a19] hover:underline cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3 text-[#e64a19]" />
+                  Paste sample public PDF
+                </button>
+              </div>
+
+              {/* Error message */}
+              {urlImportError && (
+                <div className="p-3 bg-red-50 border border-red-200/80 rounded-xl text-red-700 text-xs flex items-start gap-2.5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <div className="flex-1 leading-relaxed">{urlImportError}</div>
+                </div>
+              )}
+
+              {/* Format badges */}
+              <div className="pt-1 pb-1 text-[11px] text-gray-500">
+                .pdf, .jpg, .jpeg, .png, .docx, .xlsx, .pptx supported | Maximum file size: &lt; 20MB total
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsUrlModalOpen(false);
+                    setUrlImportError(null);
+                  }}
+                  disabled={isUrlImporting}
+                  className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUrlImporting || !urlInputValue.trim()}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#e64a19] hover:bg-[#d83f10] text-white font-semibold text-xs sm:text-sm shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-98"
+                >
+                  {isUrlImporting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Fetching document...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>Import File</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Single File Preview Modal */}
+      {viewingFile && (
+        <FilePreviewModal
+          item={viewingFile}
+          onClose={() => setViewingFile(null)}
+          onRotate={(id) => {
+            const idx = files.findIndex((f) => f.id === id);
+            if (idx !== -1) {
+              rotateFile(idx);
+              setViewingFile((prev) =>
+                prev ? { ...prev, rotation: ((prev.rotation || 0) + 90) % 360 } : null
+              );
+            }
+          }}
+        />
+      )}
     </section>
   );
 };

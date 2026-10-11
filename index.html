@@ -6,6 +6,16 @@
     <!-- Extension compatibility shield: Provide fetch setter & catch external extension errors -->
     <script>
       (function() {
+        // Polyfill Promise.try for modern pdfjs-dist compatibility across all browsers
+        if (typeof Promise !== 'undefined' && typeof Promise.try !== 'function') {
+          Promise.try = function(fn) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            return new Promise(function(resolve) {
+              resolve(fn.apply(null, args));
+            });
+          };
+        }
+
         try {
           var _origFetch = window.fetch;
           var _currentFetch = _origFetch;
@@ -44,21 +54,21 @@
         }, true);
       })();
     </script>
-    <title>Merge PDF files</title>
-    <meta name="description" content="Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free." />
+    <title>Merge PDF Files Online for Free</title>
+    <meta name="description" content="Merge. Combine. Simplify. Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free." />
     <meta name="keywords" content="Merge PDF, Merge PDF Files Online, Combine PDF Files, Free PDF Merger, Combine PDF Documents, Merge Multiple PDFs, PDF Merger Online" />
     
     <!-- OpenGraph Metadata -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Merge PDF files" />
-    <meta property="og:description" content="Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free." />
+    <meta property="og:title" content="Merge PDF Files Online for Free" />
+    <meta property="og:description" content="Merge. Combine. Simplify. Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free." />
     <meta property="og:site_name" content="Merge PDF" />
     <meta property="og:url" content="https://pdf.example.com/merge-pdf/" />
     
     <!-- Twitter Metadata -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Merge PDF files" />
-    <meta name="twitter:description" content="Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free." />
+    <meta name="twitter:title" content="Merge PDF Files Online for Free" />
+    <meta name="twitter:description" content="Merge. Combine. Simplify. Select multiple files, arrange their positions, and merge them in seconds. Easily combine PDF files online for free." />
     
     <!-- Canonical & Robots -->
     <link rel="canonical" href="https://pdf.example.com/merge-pdf/" />

@@ -19,11 +19,11 @@ export const Features: React.FC<FeaturesProps> = () => {
 
   const featureCards = [
     {
-      title: 'Cloud-First Workflow',
-      tag: 'Cloud-First',
+      title: 'Cloud & Local Workflow',
+      tag: 'Flexible Import',
       description:
-        'Seamlessly import files straight from Google Drive or cloud storage, merge in real time, and save back instantly to your workspace.',
-      highlight: 'Google Workspace Ready',
+        'Seamlessly import multiple files from your computer or web URLs, merge in real time, and download directly to your device.',
+      highlight: 'Universal Compatibility',
       icon: Cloud,
       iconBg: 'bg-[#e0f2fe]',
       iconColor: 'text-[#0284c7]',

@@ -8,16 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Maximize2,
-  RotateCcw,
+  BookOpen,
+  Layers,
 } from 'lucide-react';
-import * as pdfjsLib from 'pdfjs-dist';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-
-// Configure PDF.js worker
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
-}
+import { pdfjsLib } from '../utils/pdfSetup';
 
 interface PreviewModalProps {
   url: string | null;
@@ -30,7 +24,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.15);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [useNativeViewer, setUseNativeViewer] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfDocRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -43,11 +37,10 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
     if (!url) return;
 
     setLoading(true);
-    setError(null);
+    setUseNativeViewer(false);
 
     const loadDocument = async () => {
       try {
-        // Fetch arrayBuffer to ensure reliable parsing in all environments
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
 
@@ -66,8 +59,9 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
         setLoading(false);
       } catch (err: any) {
         if (isCancelled) return;
-        console.error('Failed to load PDF with pdfjs:', err);
-        setError('Could not render PDF preview in-browser. You can still download the file directly.');
+        console.warn('Canvas PDF loading notice, switching to browser reader:', err);
+        // Seamless fallback: the user will ALWAYS see their document via the embedded viewer
+        setUseNativeViewer(true);
         setLoading(false);
       }
     };
@@ -89,7 +83,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
     let isCancelled = false;
 
     const renderPage = async () => {
-      if (!pdfDocRef.current || !canvasRef.current || loading) return;
+      if (!pdfDocRef.current || !canvasRef.current || loading || useNativeViewer) return;
 
       try {
         if (renderTaskRef.current) {
@@ -130,7 +124,8 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
         await renderTask.promise;
       } catch (err: any) {
         if (err?.name !== 'RenderingCancelledException') {
-          console.warn('Page render warning:', err);
+          console.warn('Page render warning, falling back to native reader:', err);
+          setUseNativeViewer(true);
         }
       }
     };
@@ -140,7 +135,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
     return () => {
       isCancelled = true;
     };
-  }, [currentPage, scale, loading]);
+  }, [currentPage, scale, loading, useNativeViewer]);
 
   if (!url) return null;
 
@@ -169,10 +164,10 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-[88vh] flex flex-col overflow-hidden border border-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden border border-gray-200">
         {/* Header - Matching exact design */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 bg-white z-10 shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-gray-100 bg-white z-10 shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-bold text-xs shrink-0">
               PDF
@@ -182,41 +177,69 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
                 {name || 'merged_document.pdf'}
               </h3>
               <p className="text-xs text-gray-500">
-                {numPages > 0 ? `Page ${currentPage} of ${numPages}` : 'Document preview'}
+                {!useNativeViewer && numPages > 0 ? `Page ${currentPage} of ${numPages}` : 'Document preview'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-1.5 sm:space-x-2">
-            {/* Zoom Controls */}
-            <div className="hidden sm:flex items-center space-x-1 mr-2 px-2 py-1 bg-gray-100/80 rounded-full text-gray-600 text-xs">
+            {/* View Mode Toggle */}
+            <div className="hidden md:flex items-center p-0.5 bg-gray-100 rounded-xl text-xs font-medium text-gray-600 mr-1">
               <button
                 type="button"
-                onClick={handleZoomOut}
-                disabled={scale <= 0.6}
-                className="p-1 hover:text-black rounded-full hover:bg-gray-200 transition-colors disabled:opacity-40 cursor-pointer"
-                title="Zoom out"
+                onClick={() => setUseNativeViewer(false)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                  !useNativeViewer ? 'bg-white text-gray-900 shadow-2xs font-semibold' : 'hover:text-gray-900'
+                }`}
+                title="Canvas Page View"
               >
-                <ZoomOut className="w-3.5 h-3.5" />
+                <Layers className="w-3.5 h-3.5" />
+                <span>Pages</span>
               </button>
               <button
                 type="button"
-                onClick={handleResetZoom}
-                className="px-1.5 font-medium hover:text-black cursor-pointer"
-                title="Reset zoom"
+                onClick={() => setUseNativeViewer(true)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                  useNativeViewer ? 'bg-white text-gray-900 shadow-2xs font-semibold' : 'hover:text-gray-900'
+                }`}
+                title="Browser Document Reader"
               >
-                {Math.round(scale * 100)}%
-              </button>
-              <button
-                type="button"
-                onClick={handleZoomIn}
-                disabled={scale >= 2.5}
-                className="p-1 hover:text-black rounded-full hover:bg-gray-200 transition-colors disabled:opacity-40 cursor-pointer"
-                title="Zoom in"
-              >
-                <ZoomIn className="w-3.5 h-3.5" />
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Reader</span>
               </button>
             </div>
+
+            {/* Zoom Controls (when on Canvas view) */}
+            {!useNativeViewer && (
+              <div className="hidden sm:flex items-center space-x-1 mr-2 px-2 py-1 bg-gray-100/80 rounded-full text-gray-600 text-xs">
+                <button
+                  type="button"
+                  onClick={handleZoomOut}
+                  disabled={scale <= 0.6}
+                  className="p-1 hover:text-black rounded-full hover:bg-gray-200 transition-colors disabled:opacity-40 cursor-pointer"
+                  title="Zoom out"
+                >
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetZoom}
+                  className="px-1.5 font-medium hover:text-black cursor-pointer"
+                  title="Reset zoom"
+                >
+                  {Math.round(scale * 100)}%
+                </button>
+                <button
+                  type="button"
+                  onClick={handleZoomIn}
+                  disabled={scale >= 2.5}
+                  className="p-1 hover:text-black rounded-full hover:bg-gray-200 transition-colors disabled:opacity-40 cursor-pointer"
+                  title="Zoom in"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
 
             {/* Download Button */}
             <a
@@ -251,45 +274,36 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ url, name, onClose }
           </div>
         </div>
 
-        {/* Canvas PDF Viewing Area (No native plugin / No Chrome block) */}
-        <div className="flex-1 bg-[#f3f4f6] overflow-auto flex flex-col items-center justify-start p-4 sm:p-6 relative">
-          {loading && (
+        {/* PDF Viewing Area */}
+        <div className="flex-1 bg-[#f3f4f6] overflow-auto flex flex-col items-center justify-start p-2 sm:p-5 relative">
+          {loading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/80 backdrop-blur-xs z-20">
               <Loader2 className="w-8 h-8 text-red-600 animate-spin mb-3" />
               <p className="text-sm font-semibold text-gray-700">Rendering PDF document...</p>
-              <p className="text-xs text-gray-400 mt-1">Direct high-resolution canvas engine</p>
+              <p className="text-xs text-gray-400 mt-1">High-resolution preview</p>
             </div>
-          )}
-
-          {error ? (
-            <div className="my-auto text-center max-w-md p-6 bg-white rounded-2xl shadow-sm border border-gray-200">
-              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3">
-                <X className="w-6 h-6" />
-              </div>
-              <h4 className="text-base font-bold text-gray-900 mb-1">Preview Notice</h4>
-              <p className="text-xs text-gray-600 mb-4">{error}</p>
-              <a
-                href={url}
-                download={name || 'merged_document.pdf'}
-                className="inline-flex items-center px-5 py-2.5 rounded-full bg-[#111827] text-white text-xs font-semibold hover:bg-black transition-colors"
-              >
-                <Download className="w-3.5 h-3.5 mr-1.5" />
-                Download file directly
-              </a>
+          ) : useNativeViewer ? (
+            /* Native Browser PDF Reader */
+            <div className="w-full h-full bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+              <iframe
+                src={`${url}#toolbar=1`}
+                title={name || 'Preview Document'}
+                className="w-full h-full border-0 rounded-2xl"
+              />
             </div>
           ) : (
+            /* Paper Canvas View */
             <div className="my-auto flex flex-col items-center">
-              {/* Paper Canvas */}
               <div className="bg-white rounded-md shadow-xl border border-gray-300/80 overflow-hidden transition-transform duration-150">
-                <canvas ref={canvasRef} className="block" />
+                <canvas ref={canvasRef} className="block max-w-full" />
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer Navigation Bar for Multi-page Documents */}
-        {numPages > 1 && !loading && (
-          <div className="px-6 py-3 border-t border-gray-200 bg-white flex items-center justify-between text-xs text-gray-600 shrink-0">
+        {/* Footer Navigation Bar for Multi-page Documents on Canvas View */}
+        {!useNativeViewer && numPages > 1 && !loading && (
+          <div className="px-6 py-2.5 border-t border-gray-200 bg-white flex items-center justify-between text-xs text-gray-600 shrink-0">
             <button
               type="button"
               onClick={handlePrevPage}
