@@ -17,7 +17,7 @@
         }
 
         try {
-          var _origFetch = window.fetch;
+          var _origFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : window.fetch;
           var _currentFetch = _origFetch;
           Object.defineProperty(window, 'fetch', {
             configurable: true,
@@ -26,7 +26,7 @@
               return _currentFetch;
             },
             set: function(val) {
-              _currentFetch = val;
+              _currentFetch = typeof val === 'function' ? val.bind(window) : val;
             }
           });
         } catch (e) {}
